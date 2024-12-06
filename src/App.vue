@@ -11,45 +11,84 @@
         <input type="text" id="artifact-img-name" :value="fileName" style="font-size: min(calc(9vw / 5), 16px);" readonly placeholder="ファイル名" />
         <button class="def-button" style="font-size: min(calc(9vw / 5), 16px);" @click="scanImage">スキャン</button>
       </div>
-
-      <div id="artifact-info-area">
-        <p style="font-size: min(calc(14vw / 5), 20px); color: #d3bb8f; margin: min(calc(11vw / 5), 16px);">オプション選択</p>
-        <!-- 画像表示 -->
-        <div v-if="imageUrl">
-          <img id="artifact-img" :src="imageUrl" alt="Selected Image" />
-        </div>
-        <div id="artifact-info-inner-area">
-          <div id="option-num-area" class="info-section">
-            <p>初期オプション数</p>
-            <input class="visually-hidden" type="radio" name="option" value="3" id="option-3" />
-            <label for="option-3">3オプション</label>
-            <input class="visually-hidden" type="radio" name="option" value="4" id="option-4" />
-            <label for="option-4">4オプション</label>
+      
+      <div id="input-area">
+        <div id="artifact-info-area">
+          <p style="font-size: min(calc(14vw / 5), 20px); color: #d3bb8f; margin: min(calc(11vw / 5), 16px);">オプション選択</p>
+          <!-- 画像表示 -->
+          <div v-if="imageUrl">
+            <img id="artifact-img" :src="imageUrl" alt="Selected Image" />
           </div>
+          <div id="artifact-info-inner-area">
+            <div id="option-num-area" class="info-section">
+              <p>初期オプション数</p>
+              <input class="visually-hidden" type="radio" name="option" value="3" id="option-3" v-model.number="option" />
+              <label for="option-3">3オプション</label>
+              <input class="visually-hidden" type="radio" name="option" value="4" id="option-4" v-model.number="option" />
+              <label for="option-4">4オプション</label>
+            </div>
 
-          <div id="suboption-area" class="info-section">
-            <p>サブオプション</p>
-            <div id="suboptions">
-              <input type="checkbox" id="box-1">
-              <label for="box-1">会心率</label>
+            <div id="suboption-area" class="info-section">
+              <p>サブオプション</p>
+              <div id="suboptions">
+                <input type="checkbox" id="box-1" v-model="is_crit_rate"/>
+                <label for="box-1">会心率</label>
 
-              <input type="checkbox" id="box-2" checked>
-              <label for="box-2">会心ダメージ</label>
+                <input type="checkbox" id="box-2" v-model="is_crit_dmg"/>
+                <label for="box-2">会心ダメージ</label>
 
-              <input type="checkbox" id="box-3">
-              <label for="box-3">攻撃力</label>
+                <input type="checkbox" id="box-3" v-model="is_atk"/>
+                <label for="box-3">攻撃力</label>
+              </div>
+            </div>
+
+            <div id="reinforce-num-area" class="info-section">
+              <p>強化回数</p>
+              <select id="reinforce-select" v-model.number="count">
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+              </select>
             </div>
           </div>
-
-          <div id="reinforce-num-area" class="info-section">
-            <p>強化回数</p>
-            <select id="reinforce-select">
-              <option value="1">1</option>
-              <option value="2">2</option>
-              <option value="3">3</option>
-              <option value="4">4</option>
-              <option value="5">5</option>
-            </select>
+        </div>
+        <div id="score-info-area">
+          <p style="font-size: min(calc(14vw / 5), 20px); color: #d3bb8f; margin: min(calc(11vw / 5), 16px);">スコア情報</p>
+          <div id="score-info-inner-area">
+            <div id="init-score-area" class="info-section">
+              <p>初期スコア</p>
+              <div class="range-slider">
+                <!-- スライダー -->
+                <input
+                  type="range"
+                  min="0"
+                  max="65"
+                  step="0.1"
+                  v-model="initScore_formatted"
+                  @input="updateInitScore($event.target.value)"
+                />
+                <!-- 値表示 -->
+                <span id="init-score">{{ initScore_formatted }}</span>
+              </div>
+            </div>
+            <div id="search-score-area" class="info-section">
+              <p>調査スコア</p>
+              <div class="range-slider">
+                <!-- スライダー -->
+                <input
+                  type="range"
+                  min="0"
+                  max="65"
+                  step="0.1"
+                  v-model="searchScore_formatted"
+                  @input="updateSearchScore($event.target.value)"
+                />
+                <!-- 値表示 -->
+                <span id="search-score">{{ searchScore_formatted }}</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -67,6 +106,15 @@ export default {
       imageUrl: null, // スキャンした画像URLを保存するための変数
       selectedFile: null, // 選択したファイルを保持
       fileName: '', // ファイル名を保持
+      initScore: 0,
+      initScore_formatted: "0.0",
+      searchScore: 40,
+      searchScore_formatted: "40.0",
+      option: 3,
+      is_crit_rate: false, // 会心率のフラグ
+      is_crit_dmg: false,  // 会心ダメージのフラグ
+      is_atk: false,       // 攻撃力のフラグ
+      count: 1,
     };
   },
   methods: {
@@ -110,6 +158,18 @@ export default {
         console.error('画像スキャンに失敗しました:', error);
       }
     },
+
+    updateInitScore(value) {
+      // スライダーの値を更新
+      this.initScore = parseFloat(value, 10);
+      this.initScore_formatted = this.initScore.toFixed(1);
+    },
+
+    updateSearchScore(value) {
+      // スライダーの値を更新
+      this.searchScore = parseFloat(value, 10);
+      this.searchScore_formatted = this.searchScore.toFixed(1);
+    },
   },
 };
 </script>
@@ -138,7 +198,6 @@ body {
   flex-direction: column; /* 上下方向に要素を並べる */
   align-items: center; /* 子要素を水平方向に中央寄せ */
   height: 100vh; /* 画面全体の高さを確保 */
-  text-align: center;
 }
 
 /* 以下、既存のスタイル */
@@ -173,6 +232,18 @@ body {
   transform: scale(0.99, 0.99) translateY(2px);
 }
 
+#input-area {
+  margin: 0px min(calc(14vw / 5), 20px) min(calc(14vw / 5), 20px);
+  width: 100%;
+  height: fit-content;
+
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: min(calc(14vw / 5), 20px);
+  flex-wrap: wrap;
+}
+
 #artifact-img-name {
   padding: 10px;
   width: min(calc(200vw / 5), 250px);
@@ -188,13 +259,12 @@ body {
 #artifact-info-area {
   margin-bottom: 20px;
   width: fit-content;
-  height: fit-content;
-  max-width: 80%;
+  max-width: 90%;
 
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
 
   background-color: #424858;
   border-radius: 5px;
@@ -400,9 +470,6 @@ body {
   transform: rotate(45deg);
 }
 
-
-
-
 #reinforce-num-area p {
   padding: 0px min(calc(9vw / 5), 16px);
 
@@ -449,5 +516,122 @@ body {
 }
 
 /* ここまでアニメーション */
+
+#score-info-area {
+  margin-bottom: 20px;
+  width: fit-content;
+  max-width: 80%;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+
+  background-color: #424858;
+  border-radius: 5px;
+  outline: 1px solid #d3bb8f;
+  outline-offset: -5px;
+}
+
+#score-info-inner-area {
+  margin: 0px min(calc(14vw / 5), 20px) min(calc(14vw / 5), 20px);
+  width: fit-content;
+  height: fit-content;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 30px;
+  flex-wrap: wrap;
+}
+
+#init-score-area p {
+  padding: 0px min(calc(9vw / 5), 16px);
+
+  font-size: min(calc(9vw / 5), 16px);
+  color: #fff;
+  white-space: nowrap;
+}
+
+/* スライダー全体のスタイル */
+.range-slider {
+  display: flex;
+  align-items: center;
+}
+
+/* レンジスライダーのスタイル */
+.range-slider input[type="range"] {
+  -webkit-appearance: none;
+  width: min(calc(100vw / 5), 200px);
+  height: min(calc(4vw / 5), 8px);
+  background: hsl(223, 11%, 13%);
+  border-radius: 5px;
+  outline: none;
+  cursor: pointer;
+}
+
+/* スライダーのつまみ */
+.range-slider input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: min(calc(9vw / 5), 16px);
+  height: min(calc(9vw / 5), 16px);
+  background: #d3bb8f;
+  border: 1px solid #495366;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  transition: transform 0.3s ease;
+}
+
+.range-slider input[type="range"]::-webkit-slider-thumb:hover {
+  transform: scale(1.2); /* ホバー時に拡大 */
+}
+
+.range-slider input[type="range"]::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  background: #d3bb8f;
+  border: 1px solid #495366;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  transition: transform 0.3s ease;
+}
+
+.range-slider input[type="range"]::-moz-range-thumb:hover {
+  transform: scale(1.2);
+}
+
+/* 値表示のスタイル */
+#init-score {
+  width: min(calc(38vw / 5), 50px);
+
+  text-align: center;
+  font-size: min(calc(9vw / 5), 16px);
+  color: #fff;
+  background: none;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+#search-score-area p {
+  padding: 0px min(calc(9vw / 5), 16px);
+
+  font-size: min(calc(9vw / 5), 16px);
+  color: #fff;
+  white-space: nowrap;
+}
+
+#search-score {
+  width: min(calc(38vw / 5), 50px);
+
+  text-align: center;
+  font-size: min(calc(9vw / 5), 16px);
+  color: #fff;
+  background: none;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
 
 </style>
