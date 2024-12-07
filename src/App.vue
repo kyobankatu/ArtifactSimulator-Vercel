@@ -1064,7 +1064,7 @@ body {
   width: min(calc(18vw / 5), 24px);
   height: min(calc(18vw / 5), 24px);
   background: #d3bb8f;
-  border: 3px solid #495366;
+  border: min(calc(2vw / 5), 3px) solid #495366;
   border-radius: 50%;
   cursor: pointer;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
