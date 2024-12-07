@@ -165,7 +165,7 @@
                   max="65"
                   step="0.1"
                   v-model="initScore_formatted"
-                  @keyup.enter="updateInitScore($event.target.value)"
+                  @blur="updateInitScore($event.target.value)"
                 />
               </div>
             </div>
@@ -189,7 +189,7 @@
                   max="65"
                   step="0.1"
                   v-model="searchScore_formatted"
-                  @keyup.enter="updateSearchScore($event.target.value)"
+                  @blur="updateSearchScore($event.target.value)"
                 />
               </div>
             </div>
@@ -529,7 +529,8 @@ export default {
 
     updateInitScore(value) {
       // スライダーの値を更新
-      const tmp_score = parseFloat(value, 10);
+      let tmp_score = parseFloat(value, 10);
+      tmp_score = Math.floor(tmp_score * 10) / 10;
       if (!isNaN(tmp_score)) {
         this.initScore = 0;
       } if (tmp_score < 0) {
@@ -544,7 +545,8 @@ export default {
 
     updateSearchScore(value) {
       // スライダーの値を更新
-      const tmp_score = parseFloat(value, 10);
+      let tmp_score = parseFloat(value, 10);
+      tmp_score = Math.floor(tmp_score * 10) / 10;
       if (!isNaN(tmp_score)) {
         this.searchScore = 0;
       } if (tmp_score < 0) {
