@@ -109,7 +109,7 @@
           </div>
           <div id="artifact-info-inner-area">
             <div id="option-num-area" class="info-section">
-              <p>初期オプション数</p>
+              <p>サブオプション数</p>
               <input class="visually-hidden" type="radio" name="option" value="3" id="option-3" v-model.number="option" />
               <label for="option-3">3オプション</label>
               <input class="visually-hidden" type="radio" name="option" value="4" id="option-4" v-model.number="option" />
@@ -127,6 +127,9 @@
 
                 <input type="checkbox" id="is-atk" v-model="is_atk"/>
                 <label for="is-atk">攻撃力</label>
+
+                <input type="checkbox" id="is-hp" v-model="is_hp"/>
+                <label for="is-hp">HP</label>
               </div>
             </div>
 
@@ -154,7 +157,7 @@
             </div>
             <div id="slider-area">
               <div id="init-score-area" class="info-section">
-                <p>初期スコア</p>
+                <p>現在のスコア</p>
                 <div class="range-slider">
                   <!-- スライダー -->
                   <input
@@ -413,6 +416,7 @@ export default {
 
         // チェックボックスやスライダーの値を更新
         const atk_box = document.getElementById('is-atk');
+        const hp_box = document.getElementById('is-hp');
         const crit_rate_box = document.getElementById('is-crit-rate');
         const crit_dmg_box = document.getElementById('is-crit-dmg');
         const init_slider = document.getElementById('init-slider');
@@ -421,6 +425,7 @@ export default {
 
         // チェックボックスの状態を設定
         atk_box.checked = this.is_atk
+        hp_box.checked = this.is_hp
         crit_rate_box.checked = this.is_crit_rate
         crit_dmg_box.checked = this.is_crit_dmg
 
