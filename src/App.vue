@@ -157,8 +157,16 @@
                   v-model="initScore_formatted"
                   @input="updateInitScore($event.target.value)"
                 />
-                <!-- 値表示 -->
-                <span id="init-score">{{ initScore_formatted }}</span>
+                <!-- 値入力欄 -->
+                <input
+                  id="init-score"
+                  type="number"
+                  min="0"
+                  max="65"
+                  step="0.1"
+                  v-model="initScore_formatted"
+                  @keyup.enter="updateInitScore($event.target.value)"
+                />
               </div>
             </div>
             <div id="search-score-area" class="info-section">
@@ -173,8 +181,16 @@
                   v-model="searchScore_formatted"
                   @input="updateSearchScore($event.target.value)"
                 />
-                <!-- 値表示 -->
-                <span id="search-score">{{ searchScore_formatted }}</span>
+                <!-- 値入力欄 -->
+                <input
+                  id="search-score"
+                  type="number"
+                  min="0"
+                  max="65"
+                  step="0.1"
+                  v-model="searchScore_formatted"
+                  @keyup.enter="updateSearchScore($event.target.value)"
+                />
               </div>
             </div>
           </div>
@@ -513,13 +529,31 @@ export default {
 
     updateInitScore(value) {
       // スライダーの値を更新
-      this.initScore = parseFloat(value, 10);
+      const tmp_score = parseFloat(value, 10);
+      if (!isNaN(tmp_score)) {
+        this.initScore = 0;
+      } if (tmp_score < 0) {
+        this.initScore = 0;
+      } else if (tmp_score > 65) {
+        this.initScore = 65
+      } else {
+        this.initScore = tmp_score
+      }
       this.initScore_formatted = this.initScore.toFixed(1);
     },
 
     updateSearchScore(value) {
       // スライダーの値を更新
-      this.searchScore = parseFloat(value, 10);
+      const tmp_score = parseFloat(value, 10);
+      if (!isNaN(tmp_score)) {
+        this.searchScore = 0;
+      } if (tmp_score < 0) {
+        this.searchScore = 0;
+      } else if (tmp_score > 65) {
+        this.searchScore = 65
+      } else {
+        this.searchScore = tmp_score
+      }
       this.searchScore_formatted = this.searchScore.toFixed(1);
     },
 
@@ -1061,8 +1095,8 @@ body {
 /* スライダーのつまみ */
 .range-slider input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none;
-  width: min(calc(18vw / 5), 24px);
-  height: min(calc(18vw / 5), 24px);
+  width: min(calc(16vw / 5), 22px);
+  height: min(calc(16vw / 5), 22px);
   background: #d3bb8f;
   border: min(calc(2vw / 5), 3px) solid #495366;
   border-radius: 50%;
@@ -1092,10 +1126,12 @@ body {
 
 /* 値表示のスタイル */
 #init-score {
-  width: min(calc(38vw / 5), 50px);
+  width: min(calc(45vw / 5), 70px);
 
   text-align: center;
   font-size: min(calc(9vw / 5), 16px);
+  background: none;
+  border: none;
   color: #fff;
 }
 
@@ -1108,10 +1144,12 @@ body {
 }
 
 #search-score {
-  width: min(calc(38vw / 5), 50px);
+  width: min(calc(45vw / 5), 70px);
 
   text-align: center;
   font-size: min(calc(9vw / 5), 16px);
+  background: none;
+  border: none;
   color: #fff;
 }
 
