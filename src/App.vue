@@ -332,14 +332,14 @@ export default {
     handleFileChange(event) {
       // ファイル選択時に呼ばれる
       const file = event.target.files[0];
-      if (file && file.type === 'image/png') {
+      if (file && file.type.startsWith('image/')) {
         this.selectedFile = file;
         this.fileName = file.name; // ファイル名を表示
         // 画像データをURLとして表示
         const artifactImg = URL.createObjectURL(file);
         this.artifactImg = artifactImg;
       } else {
-        alert('PNG画像を選択してください');
+        alert('画像ファイルを選択してください');
       }
     },
 
