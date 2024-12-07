@@ -24,11 +24,11 @@
           </p>
           <div class="info-inner-box">
             <p>聖遺物の画像を基に、サブオプション等の情報を自動で入力します。</p>
-            <p>※ β版のため、会心率、会心ダメージ、攻撃力%の３つの項目に基づいたスコア計算のみ対応。</p>
+            <p>※ 手動で入力することも可能です。</p>
             <p>聖遺物の画像は、<span style="color: #ff6f61;">メインオプションとサブオプションのみが見える</span>様に切り取った上で、アップロードして下さい。
               聖遺物のセット効果を含めた画像を使用した場合、誤った情報を入力する可能性があります。</p>
             <p style="text-align: center;">切り取った画像の例</p>
-            <img src="./assets/artifact-sample.webp" alt="Info" style="width: 40%; height: auto;"/>
+            <img src="./assets/artifact-sample.webp" alt="Info" style="width: 40%; height: auto; max-width: 300px;"/>
           </div>
         </div>
       </div>
@@ -144,53 +144,62 @@
         <div id="score-info-area">
           <p style="font-size: min(calc(14vw / 5), 20px); color: #d3bb8f; margin: min(calc(11vw / 5), 16px);">スコア情報</p>
           <div id="score-info-inner-area">
-            <div id="init-score-area" class="info-section">
-              <p>初期スコア</p>
-              <div class="range-slider">
-                <!-- スライダー -->
-                <input
-                  type="range"
-                  id="init-slider"
-                  min="0"
-                  max="65"
-                  step="0.1"
-                  v-model="initScore_formatted"
-                  @input="updateInitScore($event.target.value)"
-                />
-                <!-- 値入力欄 -->
-                <input
-                  id="init-score"
-                  type="number"
-                  min="0"
-                  max="65"
-                  step="0.1"
-                  v-model="initScore_formatted"
-                  @blur="updateInitScore($event.target.value)"
-                />
-              </div>
+            <div id="score-type-area" class="info-section">
+              <p>スコア計算方法</p>
+              <select id="score-type-select" v-model.number="score_type">
+                <option value="atk">攻撃換算</option>
+                <option value="hp">HP換算</option>
+              </select>
             </div>
-            <div id="search-score-area" class="info-section">
-              <p>調査スコア</p>
-              <div class="range-slider">
-                <!-- スライダー -->
-                <input
-                  type="range"
-                  min="0"
-                  max="65"
-                  step="0.1"
-                  v-model="searchScore_formatted"
-                  @input="updateSearchScore($event.target.value)"
-                />
-                <!-- 値入力欄 -->
-                <input
-                  id="search-score"
-                  type="number"
-                  min="0"
-                  max="65"
-                  step="0.1"
-                  v-model="searchScore_formatted"
-                  @blur="updateSearchScore($event.target.value)"
-                />
+            <div id="slider-area">
+              <div id="init-score-area" class="info-section">
+                <p>初期スコア</p>
+                <div class="range-slider">
+                  <!-- スライダー -->
+                  <input
+                    type="range"
+                    id="init-slider"
+                    min="0"
+                    max="65"
+                    step="0.1"
+                    v-model="initScore_formatted"
+                    @input="updateInitScore($event.target.value)"
+                  />
+                  <!-- 値入力欄 -->
+                  <input
+                    id="init-score"
+                    type="number"
+                    min="0"
+                    max="65"
+                    step="0.1"
+                    v-model="initScore_formatted"
+                    @blur="updateInitScore($event.target.value)"
+                  />
+                </div>
+              </div>
+              <div id="search-score-area" class="info-section">
+                <p>調査スコア</p>
+                <div class="range-slider">
+                  <!-- スライダー -->
+                  <input
+                    type="range"
+                    min="0"
+                    max="65"
+                    step="0.1"
+                    v-model="searchScore_formatted"
+                    @input="updateSearchScore($event.target.value)"
+                  />
+                  <!-- 値入力欄 -->
+                  <input
+                    id="search-score"
+                    type="number"
+                    min="0"
+                    max="65"
+                    step="0.1"
+                    v-model="searchScore_formatted"
+                    @blur="updateSearchScore($event.target.value)"
+                  />
+                </div>
               </div>
             </div>
           </div>
@@ -303,7 +312,9 @@ export default {
       is_crit_rate: false, // 会心率のフラグ
       is_crit_dmg: false,  // 会心ダメージのフラグ
       is_atk: false,       // 攻撃力のフラグ
+      is_hp: false,       // HPのフラグ
       count: 1,            // 強化回数
+      score_type: "atk",   // スコア計算方法
       distributionImg: null,  // 確率分布のグラフ
       percentile: [["100.0", "0"], ["0", "0"], ["25", "0"], ["50", "0"], ["75", "0"], ["100", "0"]],
       average: 0,   // 平均
@@ -375,6 +386,8 @@ export default {
       const formData = new FormData();
       // 画像を 'image' という名前で追加
       formData.append('image', this.selectedFile);
+      // スコア計算方法を 'score_type' という名前で追加
+      formData.append('score_type', this.score_type);
 
       try {
         // POSTリクエストを送信
@@ -388,12 +401,14 @@ export default {
         // 各種数値を変更
         const data = response.data;
 
-        this.initScore = data.init
+        this.initScore = data.init;
         this.initScore_formatted = this.initScore.toFixed(1);
-        this.is_atk = data.is_atk
-        this.is_crit_rate = data.is_crit_rate
-        this.is_crit_dmg = data.is_crit_dmg
-        this.option = data.option
+        this.is_atk = data.is_atk;
+        this.is_hp = data.is_hp;
+        this.is_crit_rate = data.is_crit_rate;
+        this.is_crit_dmg = data.is_crit_dmg;
+        this.option = data.option;
+        this.score_type = data.score_type;
 
         // チェックボックスやスライダーの値を更新
         const atk_box = document.getElementById('is-atk');
@@ -471,9 +486,11 @@ export default {
           crit_dmg: this.is_crit_dmg,
           crit_rate: this.is_crit_rate,
           atk: this.is_atk,
+          hp: this.is_hp,
           init: this.initScore,
           score: this.searchScore,
           count: this.count,
+          score_type: this.score_type,
         };
 
         this.loading = true;
@@ -1005,7 +1022,7 @@ body {
 
   font-size: min(calc(9vw / 5), 16px);
   background-color: #4B5368;
-  color: white;
+  color: #d3bb8f;
   border-radius: 5px;
   border: none;
   outline: none;
@@ -1055,7 +1072,63 @@ body {
 }
 
 #score-info-inner-area {
-  margin: 0px min(calc(14vw / 5), 20px) min(calc(14vw / 5), 20px);
+  margin: 0px min(calc(14vw / 5), 20px);
+
+  display: flex;
+  align-items: flex-start;
+  justify-items: center;
+  gap: min(calc(11vw / 5), 16px);
+}
+
+#score-type-area p {
+  padding: 0px min(calc(9vw / 5), 16px);
+
+  font-size: min(calc(9vw / 5), 16px);
+  color: #fff;
+  white-space: nowrap;
+}
+
+#score-type-select {
+  padding: min(calc(5vw / 5), 8px);
+  margin: 0px min(calc(9vw / 5), 16px) min(calc(9vw / 5), 16px);
+
+  font-size: min(calc(9vw / 5), 16px);
+  background-color: #4B5368;
+  color: #d3bb8f;
+  border-radius: 5px;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  width: 80%;
+  appearance: none;
+  transition: background-color 0.3s ease;
+}
+
+/* score-type-areaのアニメーション */
+
+#score-type-select:hover {
+  background-color: #424858;
+}
+
+#score-type-select:focus {
+  background-color: #3a404f;
+  border: 1px solid #d3bb8f;
+}
+
+/* セレクトボックスの矢印 */
+#score-type-select::-ms-expand {
+  display: none;
+}
+
+#score-type-select option {
+  background-color: #4B5368;
+  color: white;
+}
+
+/* ここまでアニメーション */
+
+#slider-area {
+  margin-bottom: min(calc(14vw / 5), 20px);
   width: fit-content;
   height: fit-content;
 
