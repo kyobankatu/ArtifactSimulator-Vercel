@@ -581,7 +581,7 @@ export default {
 body {
   margin: 0;
   padding: 0;
-  height: 100vh;
+  height: fit-content;
   width: 100vw;
 
   background-image: url(./assets/background.png);
@@ -591,11 +591,11 @@ body {
 
 #app {
   padding-top: min(calc(50vh / 5), 50px);
+  height: fit-content;
 
   display: flex;
   flex-direction: column; /* 上下方向に要素を並べる */
   align-items: center; /* 子要素を水平方向に中央寄せ */
-  height: 100vh; /* 画面全体の高さを確保 */
 }
 
 /* 画面全体にオーバーレイを表示しブラー効果をかける */
@@ -1156,7 +1156,7 @@ body {
 #output-area {
   margin-bottom: 20px;
   width: 80%;
-  max-width: 893px;
+  max-width: 900px;
   height: fit-content;
 
   display: flex;
