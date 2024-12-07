@@ -1061,10 +1061,10 @@ body {
 /* スライダーのつまみ */
 .range-slider input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none;
-  width: min(calc(9vw / 5), 16px);
-  height: min(calc(9vw / 5), 16px);
+  width: min(calc(18vw / 5), 24px);
+  height: min(calc(18vw / 5), 24px);
   background: #d3bb8f;
-  border: 1px solid #495366;
+  border: 3px solid #495366;
   border-radius: 50%;
   cursor: pointer;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
@@ -1209,7 +1209,7 @@ body {
 }
 
 .data-table .cell {
-  width: min(calc(20vw / 5), 40px);
+  width: min(calc(25vw / 5), 50px);
 
   flex: 1;
   padding: min(calc(4vw / 5), 8px);
