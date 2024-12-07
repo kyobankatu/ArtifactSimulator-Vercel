@@ -631,7 +631,7 @@ body {
 }
 
 .info-icon img {
-  width: 100%;
+  width: auto;
   height: 100%;
 
   border-radius: 50%;
