@@ -30,6 +30,7 @@
             <p style="text-align: center;">切り取った画像の例</p>
             <img src="./assets/artifact-sample.webp" alt="Info" style="width: 40%; height: auto; max-width: 300px; margin-bottom: min(calc(11vw / 5), 20px);"/>
             <p>また、<span style="color: #ff6f61;">スキャンを行う前に、スコア計算方法を確認</span>してください。誤ったスコア計算方法が選択されていると、正しい初期スコアが入力されません。</p>
+            <p>※ 正しく画像をインポートした場合でも、画質やその他の要因によって正しく読み取れない可能性があります。</p>
           </div>
         </div>
       </div>
