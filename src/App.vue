@@ -108,12 +108,31 @@
             <img id="artifact-img" :src="artifactImg" alt="Selected Image" />
           </div>
           <div id="artifact-info-inner-area">
-            <div id="option-num-area" class="info-section">
-              <p>サブオプション数</p>
-              <input class="visually-hidden" type="radio" name="option" value="3" id="option-3" v-model.number="option" />
-              <label for="option-3">3オプション</label>
-              <input class="visually-hidden" type="radio" name="option" value="4" id="option-4" v-model.number="option" />
-              <label for="option-4">4オプション</label>
+            <div id="option-area">
+              <div id="option-num-area" class="info-section">
+                <p>サブオプション数</p>
+                <input class="visually-hidden" type="radio" name="option" value="3" id="option-3" v-model.number="option" />
+                <label for="option-3">3オプション</label>
+                <input class="visually-hidden" type="radio" name="option" value="4" id="option-4" v-model.number="option" />
+                <label for="option-4">4オプション</label>
+              </div>
+              <div id="main-option-area" class="info-section">
+                <p>メインオプション</p>
+                <select id="main-option-select" v-model.number="main_op">
+                  <option value="atk">攻撃力実数値</option>
+                  <option value="hp">HP実数値</option>
+                  <option value="hp%">HP%</option>
+                  <option value="atk%">攻撃力%</option>
+                  <option value="def%">防御力%</option>
+                  <option value="er">元素チャージ効率</option>
+                  <option value="em">元素熟知</option>
+                  <option value="crit-rate">会心率</option>
+                  <option value="crit-dmg">会心ダメージ</option>
+                  <option value="element">元素ダメージ</option>
+                  <option value="physical">物理ダメージ</option>
+                  <option value="heal">治療効果</option>
+                </select>
+              </div>
             </div>
 
             <div id="suboption-area" class="info-section">
@@ -317,6 +336,7 @@ export default {
       searchScore: 40,
       searchScore_formatted: "40.0",
       option: 3,
+      main_op: "atk",
       is_crit_rate: false, // 会心率のフラグ
       is_crit_dmg: false,  // 会心ダメージのフラグ
       is_atk: false,       // 攻撃力のフラグ
@@ -418,6 +438,7 @@ export default {
         this.is_crit_rate = data.is_crit_rate;
         this.is_crit_dmg = data.is_crit_dmg;
         this.option = data.option;
+        this.main_op = data.main_op;
         this.score_type = data.score_type;
 
         // チェックボックスやスライダーの値を更新
@@ -497,6 +518,7 @@ export default {
         // リクエストボディの作成
         const requestBody = {
           option: this.option,
+          main_op: this.main_op,
           crit_dmg: this.is_crit_dmg,
           crit_rate: this.is_crit_rate,
           atk: this.is_atk,
@@ -861,6 +883,14 @@ body {
   box-shadow: 5px 5px 5px rgb(0 0 0 / 70%);
 }
 
+#option-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: min(calc(22vw / 5), 30px);
+}
+
 #option-num-area label {
   margin: 0px min(calc(9vw / 5), 16px) min(calc(9vw / 5), 16px);
   padding-left: min(calc(22vw / 5), 30px);
@@ -965,6 +995,53 @@ body {
   width: 1px;
   margin: -1px;
   padding: 0;
+}
+
+/* ここまでアニメーション */
+
+#main-option-area p {
+  padding: 0px min(calc(9vw / 5), 16px);
+
+  font-size: min(calc(9vw / 5), 16px);
+  color: #fff;
+  white-space: nowrap;
+}
+
+#main-option-select {
+  padding: min(calc(5vw / 5), 8px);
+  margin: 0px min(calc(9vw / 5), 16px) min(calc(9vw / 5), 16px);
+
+  font-size: min(calc(9vw / 5), 16px);
+  background-color: #4B5368;
+  color: #d3bb8f;
+  border-radius: 5px;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  width: 80%;
+  appearance: none;
+  transition: background-color 0.3s ease;
+}
+
+/* main-option-areaのアニメーション */
+
+#main-option-select:hover {
+  background-color: #424858;
+}
+
+#main-option-select:focus {
+  background-color: #3a404f;
+  border: 1px solid #d3bb8f;
+}
+
+/* セレクトボックスの矢印 */
+#main-option-select::-ms-expand {
+  display: none;
+}
+
+#main-option-select option {
+  background-color: #4B5368;
+  color: white;
 }
 
 /* ここまでアニメーション */
