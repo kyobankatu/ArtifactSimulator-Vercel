@@ -130,9 +130,6 @@
 
                 <input type="checkbox" id="is-hp" v-model="is_hp"/>
                 <label for="is-hp">HP</label>
-
-                <input type="checkbox" id="is-em" v-model="is_em"/>
-                <label for="is-em">元素熟知</label>
               </div>
             </div>
 
@@ -156,7 +153,6 @@
               <select id="score-type-select" v-model.number="score_type">
                 <option value="atk">攻撃換算</option>
                 <option value="hp">HP換算</option>
-                <option value="em">熟知換算</option>
               </select>
             </div>
             <div id="slider-area">
@@ -321,7 +317,6 @@ export default {
       is_crit_dmg: false,  // 会心ダメージのフラグ
       is_atk: false,       // 攻撃力のフラグ
       is_hp: false,       // HPのフラグ
-      is_em: false,       // 熟知のフラグ
       count: 1,            // 強化回数
       score_type: "atk",   // スコア計算方法
       distributionImg: null,  // 確率分布のグラフ
@@ -414,7 +409,6 @@ export default {
         this.initScore_formatted = this.initScore.toFixed(1);
         this.is_atk = data.is_atk;
         this.is_hp = data.is_hp;
-        this.is_em = data.is_em;
         this.is_crit_rate = data.is_crit_rate;
         this.is_crit_dmg = data.is_crit_dmg;
         this.option = data.option;
@@ -423,7 +417,6 @@ export default {
         // チェックボックスやスライダーの値を更新
         const atk_box = document.getElementById('is-atk');
         const hp_box = document.getElementById('is-hp');
-        const em_box = document.getElementById('is-em');
         const crit_rate_box = document.getElementById('is-crit-rate');
         const crit_dmg_box = document.getElementById('is-crit-dmg');
         const init_slider = document.getElementById('init-slider');
@@ -433,7 +426,6 @@ export default {
         // チェックボックスの状態を設定
         atk_box.checked = this.is_atk
         hp_box.checked = this.is_hp
-        em_box.checked = this.is_em
         crit_rate_box.checked = this.is_crit_rate
         crit_dmg_box.checked = this.is_crit_dmg
 
@@ -501,7 +493,6 @@ export default {
           crit_rate: this.is_crit_rate,
           atk: this.is_atk,
           hp: this.is_hp,
-          em: this.is_em,
           init: this.initScore,
           score: this.searchScore,
           count: this.count,
