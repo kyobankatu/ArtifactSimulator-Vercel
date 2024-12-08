@@ -118,7 +118,7 @@
               </div>
               <div id="main-option-area" class="info-section">
                 <p>メインオプション</p>
-                <select id="main-option-select" v-model.number="main_op">
+                <select id="main-option-select" v-model="main_op">
                   <option value="atk">攻撃力実数値</option>
                   <option value="hp">HP実数値</option>
                   <option value="hp%">HP%</option>
