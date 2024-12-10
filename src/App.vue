@@ -69,7 +69,7 @@
               <li>
                 <span style="color:#ffcc66;">歪度</span>
                 <p>
-                  分布の歪みを表し、正の値を取る場合には分布が右（高いスコア）側に、負の値の場合には分布が左（低スコア）側に歪んでいると言えます。<br>
+                  分布の歪みを表し、正の値を取る場合には分布が左（低スコア）側に、負の値の場合には分布が右（高スコア）側に歪んでいると言えます。<br>
                   特に、歪度の<span style="color: #ff6f61;">絶対値が０．５より大きい</span>場合には極端な歪みがあり、良い聖遺物あるいは悪い聖遺物となる可能性が高いです。
                 </p>
               </li>
@@ -119,19 +119,20 @@
               </div>
               <div id="main-option-area" class="info-section">
                 <p>メインオプション</p>
-                <select id="main-option-select" v-model="main_op">
-                  <option value="atk">攻撃力実数値</option>
-                  <option value="hp">HP実数値</option>
-                  <option value="hp%">HP%</option>
-                  <option value="atk%">攻撃力%</option>
-                  <option value="def%">防御力%</option>
-                  <option value="er">元素チャージ効率</option>
-                  <option value="em">元素熟知</option>
-                  <option value="crit-rate">会心率</option>
-                  <option value="crit-dmg">会心ダメージ</option>
-                  <option value="element">元素ダメージ</option>
-                  <option value="physical">物理ダメージ</option>
-                  <option value="heal">治療効果</option>
+                <select class="def-selecter" v-model="position">
+                  <option value="生の花">生の花</option>
+                  <option value="死の羽">死の羽</option>
+                  <option value="時の砂">時の砂</option>
+                  <option value="空の杯">空の杯</option>
+                  <option value="理の冠">理の冠</option>
+                </select>
+                <select class="def-selecter" v-model="main_op">
+                  <option
+                    v-for="option in filteredMainOptions" 
+                    :key="option.value" 
+                    :value="option.value">
+                    {{ option.text }}
+                  </option>
                 </select>
               </div>
             </div>
@@ -158,7 +159,7 @@
 
             <div id="reinforce-num-area" class="info-section">
               <p>強化回数</p>
-              <select id="reinforce-select" v-model.number="count">
+              <select class="def-selecter" v-model.number="count">
                 <option value="1">1</option>
                 <option value="2">2</option>
                 <option value="3">3</option>
@@ -173,7 +174,7 @@
           <div id="score-info-inner-area">
             <div id="score-type-area" class="info-section">
               <p>スコア計算方法</p>
-              <select id="score-type-select" v-model.number="score_type">
+              <select class="def-selecter" v-model.number="score_type">
                 <option value="atk">攻撃換算</option>
                 <option value="hp">HP換算</option>
                 <option value="em">熟知換算</option>
@@ -327,6 +328,38 @@ export default {
         require('@/assets/artifact-3.webp'),
         require('@/assets/artifact-4.webp'),
       ],
+      mainOptions: {
+        "生の花": [
+          { value: "hp", text: "HP実数値" },
+        ],
+        "死の羽": [
+          { value: "atk", text: "攻撃力実数値" },
+        ],
+        "時の砂": [
+          { value: "hp%", text: "HP%" },
+          { value: "atk%", text: "攻撃力%" },
+          { value: "def%", text: "防御力%" },
+          { value: "er", text: "元素チャージ効率" },
+          { value: "em", text: "元素熟知" },
+        ],
+        "空の杯": [
+          { value: "atk%", text: "攻撃力%" },
+          { value: "hp%", text: "HP%" },
+          { value: "def%", text: "防御力%" },
+          { value: "em", text: "元素熟知" },
+          { value: "element", text: "元素ダメージ" },
+          { value: "physical", text: "物理ダメージ" },
+        ],
+        "理の冠": [
+          { value: "atk%", text: "攻撃力%" },
+          { value: "hp%", text: "HP%" },
+          { value: "def%", text: "防御力%" },
+          { value: "em", text: "元素熟知" },
+          { value: "crit-rate", text: "会心率" },
+          { value: "crit-dmg", text: "会心ダメージ" },
+          { value: "heal", text: "治療効果" },
+        ],
+      },
       opacities: [0, 0, 0, 0, 0],
       intervalId: null, // インターバルID
       artifactImg: null, // スキャンした画像URLを保存するための変数
@@ -337,6 +370,7 @@ export default {
       searchScore: 40,
       searchScore_formatted: "40.0",
       option: 3,
+      position: "生の花",
       main_op: "atk",
       is_crit_rate: false, // 会心率のフラグ
       is_crit_dmg: false,  // 会心ダメージのフラグ
@@ -353,6 +387,26 @@ export default {
       kurtosis: 0,   // 尖度
     };
   },
+
+  computed: {
+    // position に基づいて main_op をフィルタリング
+    filteredMainOptions() {
+      return this.mainOptions[this.position];
+    },
+  },
+
+  watch: {
+    // position が変更されたら main_op をリセット
+    position(pos) {
+      this.main_op = this.mainOptions[pos][0].value; // 配列の最初の要素を設定
+    },
+  },
+
+  mounted() {
+    // 初期化時に main_op を最初の値に設定
+    this.main_op = this.mainOptions[this.position][0].value;
+  },
+
   methods: {
     scanInfo(open) {
       if (open) {
@@ -439,6 +493,7 @@ export default {
         this.is_crit_rate = data.is_crit_rate;
         this.is_crit_dmg = data.is_crit_dmg;
         this.option = data.option;
+        this.position = data.position
         this.main_op = data.main_op;
         this.score_type = data.score_type;
 
@@ -874,6 +929,44 @@ body {
   box-shadow: 3px 5px 5px rgb(0 0 0 / 70%);
 }
 
+.def-selecter {
+  padding: min(calc(5vw / 5), 8px);
+  margin: 0px min(calc(9vw / 5), 16px) min(calc(9vw / 5), 16px);
+
+  font-size: min(calc(9vw / 5), 16px);
+  background-color: #4B5368;
+  color: #d3bb8f;
+  border-radius: 5px;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  width: 80%;
+  appearance: none;
+  transition: background-color 0.3s ease;
+}
+
+/* def-selecterのアニメーション */
+
+.def-selecter:hover {
+  background-color: #424858;
+}
+
+.def-selecter:focus {
+  background-color: #3a404f;
+  border: 1px solid #d3bb8f;
+}
+
+/* セレクトボックスの矢印 */
+.def-selecter::-ms-expand {
+  display: none;
+}
+
+.def-selecter option {
+  background-color: #4B5368;
+  color: white;
+}
+
+/* ここまでアニメーション */
 
 #artifact-img {
   margin-bottom: min(calc(22vw / 5), 30px);
@@ -1008,45 +1101,6 @@ body {
   white-space: nowrap;
 }
 
-#main-option-select {
-  padding: min(calc(5vw / 5), 8px);
-  margin: 0px min(calc(9vw / 5), 16px) min(calc(9vw / 5), 16px);
-
-  font-size: min(calc(9vw / 5), 16px);
-  background-color: #4B5368;
-  color: #d3bb8f;
-  border-radius: 5px;
-  border: none;
-  outline: none;
-  cursor: pointer;
-  width: 80%;
-  appearance: none;
-  transition: background-color 0.3s ease;
-}
-
-/* main-option-areaのアニメーション */
-
-#main-option-select:hover {
-  background-color: #424858;
-}
-
-#main-option-select:focus {
-  background-color: #3a404f;
-  border: 1px solid #d3bb8f;
-}
-
-/* セレクトボックスの矢印 */
-#main-option-select::-ms-expand {
-  display: none;
-}
-
-#main-option-select option {
-  background-color: #4B5368;
-  color: white;
-}
-
-/* ここまでアニメーション */
-
 #suboption-area p {
   padding: 0px min(calc(9vw / 5), 16px);
 
@@ -1109,45 +1163,6 @@ body {
   white-space: nowrap;
 }
 
-#reinforce-select {
-  padding: min(calc(5vw / 5), 8px);
-  margin: 0px min(calc(9vw / 5), 16px) min(calc(9vw / 5), 16px);
-
-  font-size: min(calc(9vw / 5), 16px);
-  background-color: #4B5368;
-  color: #d3bb8f;
-  border-radius: 5px;
-  border: none;
-  outline: none;
-  cursor: pointer;
-  width: 80%;
-  appearance: none;
-  transition: background-color 0.3s ease;
-}
-
-/* reinforce-num-areaのアニメーション */
-
-#reinforce-select:hover {
-  background-color: #424858;
-}
-
-#reinforce-select:focus {
-  background-color: #3a404f;
-  border: 1px solid #d3bb8f;
-}
-
-/* セレクトボックスの矢印 */
-#reinforce-select::-ms-expand {
-  display: none;
-}
-
-#reinforce-select option {
-  background-color: #4B5368;
-  color: white;
-}
-
-/* ここまでアニメーション */
-
 #score-info-area {
   margin-bottom: 20px;
   width: fit-content;
@@ -1180,45 +1195,6 @@ body {
   color: #fff;
   white-space: nowrap;
 }
-
-#score-type-select {
-  padding: min(calc(5vw / 5), 8px);
-  margin: 0px min(calc(9vw / 5), 16px) min(calc(9vw / 5), 16px);
-
-  font-size: min(calc(9vw / 5), 16px);
-  background-color: #4B5368;
-  color: #d3bb8f;
-  border-radius: 5px;
-  border: none;
-  outline: none;
-  cursor: pointer;
-  width: 80%;
-  appearance: none;
-  transition: background-color 0.3s ease;
-}
-
-/* score-type-areaのアニメーション */
-
-#score-type-select:hover {
-  background-color: #424858;
-}
-
-#score-type-select:focus {
-  background-color: #3a404f;
-  border: 1px solid #d3bb8f;
-}
-
-/* セレクトボックスの矢印 */
-#score-type-select::-ms-expand {
-  display: none;
-}
-
-#score-type-select option {
-  background-color: #4B5368;
-  color: white;
-}
-
-/* ここまでアニメーション */
 
 #slider-area {
   margin-bottom: min(calc(14vw / 5), 20px);
