@@ -319,6 +319,7 @@ export default {
       show_info_box: false,
       show_close_button: false,
       loading: false, // ロード状態フラグ
+      scanning: false, // スキャン中のフラグ
       paimonImg: paimon_def, // ロード中パイモン
       loading_msg: "パイモンが計算中...", // 初期メッセージ
       images: [
@@ -398,7 +399,11 @@ export default {
   watch: {
     // position が変更されたら main_op をリセット
     position(pos) {
-      this.main_op = this.mainOptions[pos][0].value; // 配列の最初の要素を設定
+      if (this.scanning) {
+        this.scanning = false;
+      } else {
+        this.main_op = this.mainOptions[pos][0].value; // 配列の最初の要素を設定
+      }
     },
   },
 
@@ -461,6 +466,7 @@ export default {
       }
       
       this.loading = true;
+      this.scanning = true;
 
       this.paimonImg = paimon_def; // 初期状態の画像に設定
       this.loading_msg = "パイモンが計算中...";
