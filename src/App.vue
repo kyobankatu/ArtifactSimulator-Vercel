@@ -1,305 +1,74 @@
 <template>
   <body>
     <div id="app">
-      <!-- オーバーレイでブラー表示 -->
-      <div :class="['overlay', { active: loading }]">
-        <img id="paimon-img" :src="paimonImg">
-        <p>{{ loading_msg }}</p>
-        <div class="loading-artifact-container">
-          <img
-            v-for="(img, index) in images"
-            :key="index"
-            :src="img"
-            class="loading-artifact-img"
-            :style="{ opacity: opacities[index] }"
-          />
-        </div>
-      </div>
+      <OverlayLoading
+        :loading="loading"
+        :paimonImg="paimonImg"
+        :loading_msg="loading_msg"
+        :images="images"
+        :opacities="opacities"
+      />
 
-      <div :class="['overlay', { active: show_scan_info }]">
-        <button v-if="show_close_button" class="def-button info-close-button" style="font-size: min(calc(9vw / 5), 16px);" @click="scanInfo(false)">閉じる</button>
-        <div :class="['info-box', { 'show': show_info_box }]">
-          <p style="font-size: min(calc(14vw / 5), 20px); color: #d3bb8f; margin: min(calc(11vw / 5), 16px);">
-            聖遺物のインポートについて
-          </p>
-          <div class="info-inner-box">
-            <p>聖遺物の画像を基に、サブオプション等の情報を自動で入力します。</p>
-            <p>※ 手動で入力することも可能です。</p>
-            <p>聖遺物の画像は、<span style="color: #ff6f61;">メインオプションとサブオプションのみが見える</span>様に切り取った上で、アップロードして下さい。
-              聖遺物のセット効果を含めた画像を使用した場合、誤った情報を入力する可能性があります。</p>
-            <p style="text-align: center;">切り取った画像の例</p>
-            <img src="./assets/artifact-sample.webp" alt="Info" style="width: 40%; height: auto; max-width: 300px; margin-bottom: min(calc(11vw / 5), 20px);"/>
-            <p>また、<span style="color: #ff6f61;">スキャンを行う前に、スコア計算方法を確認</span>してください。誤ったスコア計算方法が選択されていると、正しい初期スコアが入力されません。</p>
-            <p>※ 正しく画像をインポートした場合でも、画質やその他の要因によって正しく読み取れない可能性があります。</p>
-          </div>
-        </div>
-      </div>
-
-      <div :class="['overlay', { active: show_data_info }]">
-        <button v-if="show_close_button" class="def-button info-close-button" style="font-size: min(calc(9vw / 5), 16px);" @click="dataInfo(false)">閉じる</button>
-        <div :class="['info-box', { 'show': show_info_box }]">
-          <p style="font-size: min(calc(14vw / 5), 20px); color: #d3bb8f; margin: min(calc(11vw / 5), 16px);">
-            出力データについて
-          </p>
-          <div class="info-inner-box">
-            <p>聖遺物の情報を基に、予想スコアの分布を計算します。</p>
-            <p>画面右側にある<span style="color: #4fc3f7;">「更新」ボタン</span>を押すことで、予想スコアの分布および各種統計量を出力します。</p>
-            <p style="text-align: center;">確率分布の例</p>
-            <img src="./assets/distribution-sample.webp" alt="Info" style="width: 60%; height: auto; margin-bottom: min(calc(9vw / 5), 16px);"/>
-            <p>縦軸は確率（％表記ではない）を、横軸は最終スコアを表しています。</p>
-            <p>※ 計算の過程で、極度に出現確率が少ない例については削除されているので、確率の総和は必ずしも１にはなりません。</p>
-            <p><span style="color: #4fc3f7;">「データ表」</span>では各種統計量を表形式で出力します。</p>
-            <p>上段の表では、１列目に上側〇〇％点を、２列目にそれに対応したスコアを記載。１行目については、<span style="color: #4fc3f7;">「スコア情報」→「調査スコア」</span>にて設定したスコアが上側何％点であるかを表しています。
-            </p>
-            <p>下段の表では、グラフの形に関する統計量を出力します。</p>
-            <ul>
-              <li>
-                <span style="color:#ffcc66;">平均</span>
-                <p>
-                  上側５０％点と比較し、大きい場合には分布が低スコアに偏っていると言えます。逆も同様。
-                </p>
-              </li>
-              <li>
-                <span style="color:#ffcc66;">分散</span>
-                <p>
-                  分散が大きい場合には、分布が広範囲に散らばっていると言えます。<br>
-                  特に、分散が<span style="color: #ff6f61;">４５より大きい</span>場合には最終スコアの予想がかなり散らばっていると言え、１段階強化した後に改めて出力を行うことでより正確な最終スコアの予想を行えます。
-                </p>
-              </li>
-              <li>
-                <span style="color:#ffcc66;">歪度</span>
-                <p>
-                  分布の歪みを表し、正の値を取る場合には分布が左（低スコア）側に、負の値の場合には分布が右（高スコア）側に歪んでいると言えます。<br>
-                  特に、歪度の<span style="color: #ff6f61;">絶対値が０．５より大きい</span>場合には極端な歪みがあり、良い聖遺物あるいは悪い聖遺物となる可能性が高いです。
-                </p>
-              </li>
-              <li>
-                <span style="color:#ffcc66;">尖度</span>
-                <p>分布の尖り具合を表し、正の値を取る場合には分布が尖っており、負の値の場合には分布が扁平であると言えます。<br>
-                  特に、尖度が<span style="color: #ff6f61;">０．５より大きい</span>場合には平均付近に最終スコアの予想が集中しており、平均値とほぼ同じスコアに収束する可能性が高いです。<br>
-                  一方で、尖度が<span style="color: #ff6f61;">-０．５より小さい</span>場合には分布が平均付近から散らばっており、平均値から離れた値に収束する可能性が高いです。
-                </p>
-              </li>
-            </ul>
-          </div>
-        </div>
-      </div>
+      <OverlayInfo
+        :show_scan_info="show_scan_info"
+        :show_data_info="show_data_info"
+        :show_info_box="show_info_box"
+        :show_close_button="show_close_button"
+        @close-scan-info="scanInfo(false)"
+        @close-data-info="dataInfo(false)"
+      />
       
-      <div style="display: flex; align-items: center; justify-items: center;">
-        <p style="font-size: min(calc(14vw / 5), 20px); color: #3a404f;">聖遺物インポート</p>
-        <button class="info-icon" @click="scanInfo(true)">
-          <img src="./assets/info.webp" alt="Info"/>
-        </button>
-      </div>
-      
-      <!-- ファイル選択と表示フォーム -->
-      <div id="img-upload-area">
-        <!-- ファイル選択を隠してラベルをクリック可能にする -->
-        <label for="artifact-select" class="def-button" style="font-size: min(calc(9vw / 5), 16px);">ファイルを選択</label>
-        <input type="file" id="artifact-select" @change="handleFileChange" accept="image/png" style="display: none;"/>
-        <input type="text" id="artifact-img-name" :value="fileName" style="font-size: min(calc(9vw / 5), 16px);" readonly placeholder="ファイル名" />
-        <button class="def-button" style="font-size: min(calc(9vw / 5), 16px);" @click="scanImage">スキャン</button>
-      </div>
+      <ArtifactImport
+        :fileName="fileName"
+        @file-change="handleFileChange"
+        @scan-image="scanImage"
+        @show-info="scanInfo(true)"
+      />
       
       <div id="input-area">
-        <div id="artifact-info-area">
-          <p style="font-size: min(calc(14vw / 5), 20px); color: #d3bb8f; margin: min(calc(11vw / 5), 16px);">オプション選択</p>
-          <!-- 画像表示 -->
-          <div v-if="artifactImg">
-            <img id="artifact-img" :src="artifactImg" alt="Selected Image" />
-          </div>
-          <div id="artifact-info-inner-area">
-            <div id="option-area">
-              <div id="option-num-area" class="info-section">
-                <p>サブオプション数</p>
-                <input class="visually-hidden" type="radio" name="option" value="3" id="option-3" v-model.number="option" />
-                <label for="option-3">3オプション</label>
-                <input class="visually-hidden" type="radio" name="option" value="4" id="option-4" v-model.number="option" />
-                <label for="option-4">4オプション</label>
-              </div>
-              <div id="main-option-area" class="info-section">
-                <p>メインオプション</p>
-                <select class="def-selecter" v-model="position">
-                  <option value="生の花">生の花</option>
-                  <option value="死の羽">死の羽</option>
-                  <option value="時の砂">時の砂</option>
-                  <option value="空の杯">空の杯</option>
-                  <option value="理の冠">理の冠</option>
-                </select>
-                <select class="def-selecter" v-model="main_op">
-                  <option
-                    v-for="option in filteredMainOptions" 
-                    :key="option.value" 
-                    :value="option.value">
-                    {{ option.text }}
-                  </option>
-                </select>
-              </div>
-            </div>
+        <ArtifactInfoArea
+          :artifactImg="artifactImg"
+          :option="option"
+          :position="position"
+          :main_op="main_op"
+          :filteredMainOptions="filteredMainOptions"
+          :is_crit_rate="is_crit_rate"
+          :is_crit_dmg="is_crit_dmg"
+          :is_atk="is_atk"
+          :is_hp="is_hp"
+          :is_em="is_em"
+          :count="count"
+          @update:option="option = $event"
+          @update:position="position = $event"
+          @update:main_op="main_op = $event"
+          @update:is_crit_rate="is_crit_rate = $event"
+          @update:is_crit_dmg="is_crit_dmg = $event"
+          @update:is_atk="is_atk = $event"
+          @update:is_hp="is_hp = $event"
+          @update:is_em="is_em = $event"
+          @update:count="count = $event"
+        />
 
-            <div id="suboption-area" class="info-section">
-              <p>サブオプション</p>
-              <div id="suboptions">
-                <input type="checkbox" id="is-crit-rate" v-model="is_crit_rate"/>
-                <label for="is-crit-rate">会心率</label>
-
-                <input type="checkbox" id="is-crit-dmg" v-model="is_crit_dmg"/>
-                <label for="is-crit-dmg">会心ダメージ</label>
-
-                <input type="checkbox" id="is-atk" v-model="is_atk"/>
-                <label for="is-atk">攻撃力</label>
-
-                <input type="checkbox" id="is-hp" v-model="is_hp"/>
-                <label for="is-hp">HP</label>
-
-                <input type="checkbox" id="is-em" v-model="is_em"/>
-                <label for="is-em">元素熟知</label>
-              </div>
-            </div>
-
-            <div id="reinforce-num-area" class="info-section">
-              <p>強化回数</p>
-              <select class="def-selecter" v-model.number="count">
-                <option value="1">1</option>
-                <option value="2">2</option>
-                <option value="3">3</option>
-                <option value="4">4</option>
-                <option value="5">5</option>
-              </select>
-            </div>
-          </div>
-        </div>
-        <div id="score-info-area">
-          <p style="font-size: min(calc(14vw / 5), 20px); color: #d3bb8f; margin: min(calc(11vw / 5), 16px);">スコア情報</p>
-          <div id="score-info-inner-area">
-            <div id="score-type-area" class="info-section">
-              <p>スコア計算方法</p>
-              <select class="def-selecter" v-model.number="score_type">
-                <option value="atk">攻撃換算</option>
-                <option value="hp">HP換算</option>
-                <option value="em">熟知換算</option>
-              </select>
-            </div>
-            <div id="slider-area">
-              <div id="init-score-area" class="info-section">
-                <p>現在のスコア</p>
-                <div class="range-slider">
-                  <!-- スライダー -->
-                  <input
-                    type="range"
-                    id="init-slider"
-                    min="0"
-                    max="65"
-                    step="0.1"
-                    v-model="initScore_formatted"
-                    @input="updateInitScore($event.target.value)"
-                  />
-                  <!-- 値入力欄 -->
-                  <input
-                    id="init-score"
-                    type="number"
-                    min="0"
-                    max="65"
-                    step="0.1"
-                    v-model="initScore_formatted"
-                    @blur="updateInitScore($event.target.value)"
-                  />
-                </div>
-              </div>
-              <div id="search-score-area" class="info-section">
-                <p>調査スコア</p>
-                <div class="range-slider">
-                  <!-- スライダー -->
-                  <input
-                    type="range"
-                    min="0"
-                    max="65"
-                    step="0.1"
-                    v-model="searchScore_formatted"
-                    @input="updateSearchScore($event.target.value)"
-                  />
-                  <!-- 値入力欄 -->
-                  <input
-                    id="search-score"
-                    type="number"
-                    min="0"
-                    max="65"
-                    step="0.1"
-                    v-model="searchScore_formatted"
-                    @blur="updateSearchScore($event.target.value)"
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        <ScoreInfoArea
+          :score_type="score_type"
+          :initScore_formatted="initScore_formatted"
+          :searchScore_formatted="searchScore_formatted"
+          @update:score_type="score_type = $event"
+          @updateInitScore="updateInitScore"
+          @updateSearchScore="updateSearchScore"
+        />
       </div>
 
-      <div id="output-area">
-        <div style="display: flex; align-items: center; justify-items: center;">
-          <p style="font-size: min(calc(14vw / 5), 20px); color: #d3bb8f; margin: min(calc(11vw / 5), 16px);">出力データ</p>
-          <button class="info-icon" @click="dataInfo(true)">
-            <img src="./assets/info.webp" alt="Info"/>
-          </button>
-        </div>
-        <div id="output-inner-area">
-          <div id="distribution-area" class="info-section">
-            <p>確率分布</p>
-            <!-- 画像表示 -->
-            <div id="distribution-inner-area" v-if="distributionImg">
-              <img id="distribution-img" :src="distributionImg" alt="Distribution Image" />
-            </div>
-          </div>
-          <div id="statistics-area" class="info-section">
-            <p>データ表</p>
-            <div class="data-table">
-              <div class="row">
-                <div class="cell" id="data-1-1">{{ percentile[0][0] }}%</div>
-                <div class="cell" id="data-1-2">{{ percentile[0][1] }}</div>
-              </div>
-              <div class="row">
-                <div class="cell" id="data-2-1">{{ percentile[1][0] }}%</div>
-                <div class="cell" id="data-2-2">{{ percentile[1][1] }}</div>
-              </div>
-              <div class="row">
-                <div class="cell" id="data-3-1">{{ percentile[2][0] }}%</div>
-                <div class="cell" id="data-3-2">{{ percentile[2][1] }}</div>
-              </div>
-              <div class="row">
-                <div class="cell" id="data-4-1">{{ percentile[3][0] }}%</div>
-                <div class="cell" id="data-4-2">{{ percentile[3][1] }}</div>
-              </div>
-              <div class="row">
-                <div class="cell" id="data-5-1">{{ percentile[4][0] }}%</div>
-                <div class="cell" id="data-5-2">{{ percentile[4][1] }}</div>
-              </div>
-              <div class="row">
-                <div class="cell" id="data-6-1">{{ percentile[5][0] }}%</div>
-                <div class="cell" id="data-6-2">{{ percentile[5][1] }}</div>
-              </div>
-            </div>
-            <div class="data-table">
-              <div class="row">
-                <div class="cell" id="data-7-1">平均</div>
-                <div class="cell" id="data-7-2">{{ average }}</div>
-              </div>
-              <div class="row">
-                <div class="cell" id="data-8-1">分散</div>
-                <div class="cell" id="data-8-2">{{ variance }}</div>
-              </div>
-              <div class="row">
-                <div class="cell" id="data-9-1">歪度</div>
-                <div class="cell" id="data-9-2">{{ skewness }}</div>
-              </div>
-              <div class="row">
-                <div class="cell" id="data-10-1">尖度</div>
-                <div class="cell" id="data-10-2">{{ kurtosis }}</div>
-              </div>
-            </div>
-          </div>
-          <button class="def-button" style="font-size: min(calc(9vw / 5), 16px);" @click="updateOutput">更新</button>
-        </div>
-      </div>
+      <OutputArea
+        :distributionImg="distributionImg"
+        :percentile="percentile"
+        :average="average"
+        :variance="variance"
+        :skewness="skewness"
+        :kurtosis="kurtosis"
+        @update-output="updateOutput"
+        @show-info="dataInfo(true)"
+      />
     </div>
   </body>
 </template>
@@ -309,9 +78,23 @@ import axios from 'axios';
 import paimon_def from "@/assets/paimon.webp";
 import paimon_suc from "@/assets/paimon-success.webp";
 import paimon_fail from "@/assets/paimon-failed.webp";
+import OverlayLoading from './components/OverlayLoading.vue';
+import OverlayInfo from './components/OverlayInfo.vue';
+import ArtifactImport from './components/ArtifactImport.vue';
+import ArtifactInfoArea from './components/ArtifactInfoArea.vue';
+import ScoreInfoArea from './components/ScoreInfoArea.vue';
+import OutputArea from './components/OutputArea.vue';
 
 export default {
   name: 'App',
+  components: {
+    OverlayLoading,
+    OverlayInfo,
+    ArtifactImport,
+    ArtifactInfoArea,
+    ScoreInfoArea,
+    OutputArea
+  },
   data() {
     return {
       show_scan_info: false,
@@ -690,7 +473,7 @@ export default {
 };
 </script>
 
-<style scoped>
+<style>
 
 * {
   font-family: Genshin;
@@ -739,26 +522,6 @@ body {
   color: #555;
 }
 
-#paimon-img {
-  width: min(calc(100vw / 5), 150px);
-  height: auto;
-}
-
-.loading-artifact-container {
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-  margin-top: 10px;
-}
-
-.loading-artifact-img {
-  width: min(calc(30vw / 5), 50px);
-  height: auto;
-
-  opacity: 0.2; /* 初期状態 */
-  transition: opacity 0.3s ease-in-out;
-}
-
 /* ロード状態の表示切り替え */
 .overlay.active {
   visibility: visible;
@@ -792,58 +555,6 @@ body {
 
   transition-duration: 100ms;
   visibility: visible;
-}
-
-/* 説明欄初期状態 */
-.info-box {
-  max-height: 0px;
-  max-width: 80%;
-  height: fit-content;
-  width: fit-content;
-  padding: 10px;
-
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
-
-  background-color: #424858;
-  border-radius: 5px;
-  outline: 1px solid #d3bb8f;
-  outline-offset: -5px;
-
-  transition: max-height 300ms ease-in-out;
-}
-
-/* 説明欄表示状態 */
-.info-box.show {
-  max-height: 70%;
-  padding: 10px;
-}
-
-.info-close-button {
-  margin-bottom: min(calc(14vw / 5), 20px);
-}
-
-.info-inner-box {
-  margin: 0px min(calc(30vw / 5), 40px) min(calc(30vw / 5), 40px);
-
-  overflow-x: hidden;
-  overflow-y: scroll;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
-}
-
-.info-inner-box p, .info-inner-box li{
-  margin: 0px 0px min(calc(9vw / 5), 16px);
-  width: 100%;
-
-  text-align: left;
-  font-size: min(calc(9vw / 5), 16px);
-  color: #fff;
 }
 
 .def-button {
