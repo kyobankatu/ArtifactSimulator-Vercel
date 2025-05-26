@@ -1,6 +1,6 @@
 <template>
   <body>
-    <div id="app">
+    <div class="app">
       <OverlayLoading
         :loading="loading"
         :paimonImg="paimonImg"
@@ -498,7 +498,7 @@ body {
   background-size: calc(200vw / 5) calc(200vw / 5);
 }
 
-#app {
+.app {
   padding-top: min(calc(50vh / 5), 50px);
   height: fit-content;
 
