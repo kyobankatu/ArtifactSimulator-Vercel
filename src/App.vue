@@ -163,6 +163,7 @@ export default {
       is_em: false,       // 熟知のフラグ
       count: 1,            // 強化回数
       score_type: "atk",   // スコア計算方法
+      level: 0, // レベル
       distributionImg: null,  // 確率分布のグラフ
       percentile: [["100.0", "0"], ["0", "0"], ["25", "0"], ["50", "0"], ["75", "0"], ["100", "0"]],
       average: 0,   // 平均
@@ -285,6 +286,7 @@ export default {
         this.position = data.position
         this.main_op = data.main_op;
         this.score_type = data.score_type;
+        this.level = data.level;
 
         // チェックボックスやスライダーの値を更新
         const atk_box = document.getElementById('is-atk');
@@ -313,6 +315,12 @@ export default {
         } else {
           option_3.checked = false
           option_4.checked = true
+        }
+
+        // レベルによって強化回数を設定
+        this.count = 5 - Math.floor(this.level / 4);
+        if (this.count == 0) {
+          this.count = 1; // レベルが0の場合は1に設定
         }
 
         // 成功した場合の画像変更
