@@ -20,7 +20,7 @@
           聖遺物のセット効果を含めた画像を使用した場合、誤った情報を入力する可能性があります。
         </p>
         <p class="center-text">切り取った画像の例</p>
-        <img src="@/assets/artifact-sample.webp" alt="Info" id="artifact-sample-img"/>
+        <img class="artifact-sample-img" src="@/assets/artifact-sample.webp" alt="Info"/>
         <p>
           また、
           <span class="emphasis-red">スキャンを行う前に、スコア計算方法を確認</span>
@@ -45,7 +45,7 @@
         <p>聖遺物の情報を基に、予想スコアの分布を計算します。</p>
         <p>画面右側にある<span class="emphasis-blue">「更新」ボタン</span>を押すことで、予想スコアの分布および各種統計量を出力します。</p>
         <p class="center-text">確率分布の例</p>
-        <img src="@/assets/distribution-sample.webp" alt="Info" id="distribution-sample-img"/>
+        <img class="distribution-sample-img" src="@/assets/distribution-sample.webp" alt="Info"/>
         <p>縦軸は確率（％表記ではない）を、横軸は最終スコアを表しています。</p>
         <p>※ 計算の過程で、極度に出現確率が少ない例については削除されているので、確率の総和は必ずしも１にはなりません。</p>
         <p><span class="emphasis-blue">「データ表」</span>では各種統計量を表形式で出力します。</p>
@@ -163,14 +163,14 @@ export default {
   margin: min(calc(11vw / 5), 16px);
 }
 
-#artifact-sample-img {
+.artifact-sample-img {
   width: 40%;
   height: auto;
   max-width: 300px;
   margin-bottom: min(calc(11vw / 5), 20px);
 }
 
-#distribution-sample-img {
+.distribution-sample-img {
   width: 60%;
   height: auto;
   margin-bottom: min(calc(9vw / 5), 16px);

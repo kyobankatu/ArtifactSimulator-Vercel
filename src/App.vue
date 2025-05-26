@@ -25,7 +25,7 @@
         @show-info="scanInfo(true)"
       />
       
-      <div id="input-area">
+      <div class="input-area">
         <ArtifactInfoArea
           :artifactImg="artifactImg"
           :option="option"
@@ -499,7 +499,7 @@ body {
   align-items: center; /* 子要素を水平方向に中央寄せ */
 }
 
-/* 画面全体にオーバーレイを表示しブラー効果をかける */
+/* オーバーレイ */
 .overlay {
   position: fixed;
   top: 0;
@@ -527,15 +527,7 @@ body {
   visibility: visible;
 }
 
-/* 以下、既存のスタイル */
-#img-upload-area {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  margin-bottom: 20px;
-}
-
+/* infoボタン */
 .info-icon {
   padding: 0px;
   margin: 0px;
@@ -557,6 +549,7 @@ body {
   visibility: visible;
 }
 
+/* 基本的なボタンスタイル */
 .def-button {
   padding: min(calc(6vw / 5), 10px) min(calc(14vw / 5), 20px);
   width: fit-content;
@@ -581,7 +574,8 @@ body {
   transform: scale(0.99, 0.99) translateY(2px);
 }
 
-#input-area {
+/* 値入力エリア */
+.input-area {
   margin: 0px min(calc(14vw / 5), 20px) min(calc(14vw / 5), 20px);
   width: 100%;
   height: fit-content;
@@ -593,46 +587,7 @@ body {
   flex-wrap: wrap;
 }
 
-#artifact-img-name {
-  padding: 10px;
-  width: min(calc(200vw / 5), 250px);
-  
-  text-align: center;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  background-color: #f9f9f9;
-  font-size: 14px;
-  cursor: not-allowed;
-}
-
-#artifact-info-area {
-  margin-bottom: 20px;
-  width: fit-content;
-  max-width: 90%;
-
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
-
-  background-color: #424858;
-  border-radius: 5px;
-  outline: 1px solid #d3bb8f;
-  outline-offset: -5px;
-}
-
-#artifact-info-inner-area {
-  margin: 0px min(calc(14vw / 5), 20px) min(calc(14vw / 5), 20px);
-  width: fit-content;
-  height: fit-content;
-
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 30px;
-  flex-wrap: wrap;
-}
-
+/* 基本的な情報ボックス */
 .info-section {
   width: fit-content;
   height: fit-content;
@@ -646,6 +601,7 @@ body {
   box-shadow: 3px 5px 5px rgb(0 0 0 / 70%);
 }
 
+/* 基本的なセレクトボックス */
 .def-selecter {
   padding: min(calc(5vw / 5), 8px);
   margin: 0px min(calc(9vw / 5), 16px) min(calc(9vw / 5), 16px);
@@ -684,457 +640,5 @@ body {
 }
 
 /* ここまでアニメーション */
-
-#artifact-img {
-  margin-bottom: min(calc(22vw / 5), 30px);
-
-  width: min(calc(150vw / 5), 320px);
-  height: auto;
-
-  box-shadow: 5px 5px 5px rgb(0 0 0 / 70%);
-}
-
-#option-area {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
-  gap: min(calc(22vw / 5), 30px);
-}
-
-#option-num-area label {
-  margin: 0px min(calc(9vw / 5), 16px) min(calc(9vw / 5), 16px);
-  padding-left: min(calc(22vw / 5), 30px);
-
-  position: relative;
-  cursor: pointer;
-  font-size: min(calc(9vw / 5), 16px);
-  color: #fff;
-  white-space: nowrap;
-  transition: background-color 0.3s, transform 0.2s ease-in-out; /* ホバー時のアニメーション */
-}
-
-#option-num-area input[type="radio"] {
-  position: absolute;
-  left: 0;
-  top: 50%;
-  transform: translateY(-50%);
-  width: min(calc(9vw / 5), 16px);
-  height: min(calc(9vw / 5), 16px);
-  opacity: 0; /* ラジオボタンを非表示に */
-  pointer-events: none; /* ユーザーがクリックできないように */
-}
-
-#option-num-area p {
-  padding: 0px min(calc(9vw / 5), 16px);
-
-  font-size: min(calc(9vw / 5), 16px);
-  color: #fff;
-  white-space: nowrap;
-}
-
-/* option-num-areaのアニメーション */
-
-#option-num-area label::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 50%;
-  transform: translateY(-50%);
-  width: min(calc(9vw / 5), 16px);
-  height: min(calc(9vw / 5), 16px);
-  border: 2px solid #fff;
-  border-radius: 50%;
-  background-color: transparent;
-  transition: all 0.3s ease; /* アニメーション */
-}
-
-#option-num-area label::after {
-  content: "";
-  position: absolute;
-  left: calc(2px + min(calc(9vw / 5), 16px) * 0.1);
-  top: 50%;
-  transform: translateY(-50%);
-  width: calc(min(calc(9vw / 5), 16px) * 0.8);
-  height: calc(min(calc(9vw / 5), 16px) * 0.8);
-  border-radius: 50%;
-  background-color: #fff;
-  opacity: 0; /* 初期状態では非表示 */
-  transition: all 0.3s ease; /* アニメーション */
-}
-
-#option-num-area input[type="radio"]:checked + label::after {
-  opacity: 1; /* チェック時に〇を表示 */
-}
-
-#option-num-area #option-3:not(:checked) + label::after {
-  opacity: 0; /* 未選択状態で非表示 */
-  transform: translateY(100%);
-}
-
-#option-num-area #option-4:not(:checked) + label::after {
-  opacity: 0; /* 未選択状態で非表示 */
-  transform: translateY(-100%);
-}
-
-#option-num-area input[type="radio"]:checked + label::before {
-  background-color: #4B5368; /* チェック時の背景色 */
-  transform: translateY(-50%) scale(1.2); /* チェック時に少し拡大 */
-}
-
-#option-num-area label:hover {
-  background-color: rgba(255, 255, 255, 0); /* ホバー時の背景色 */
-  transform: translateY(-2px); /* ホバー時に少し浮き上がる */
-}
-
-#option-num-area label:hover::before {
-  transform: translateY(-50%) scale(1.1); /* ホバー時にラジオボタンが少し大きくなる */
-}
-
-#option-num-area input[type="radio"]:checked + label {
-  color: #d3bb8f; /* チェックされたラベルの文字色 */
-}
-
-.visually-hidden {
-  position: absolute;
-  white-space: nowrap;
-  border: 0;
-  clip: rect(0 0 0 0);
-  clip-path: inset(50%);
-  overflow: hidden;
-  height: 1px;
-  width: 1px;
-  margin: -1px;
-  padding: 0;
-}
-
-/* ここまでアニメーション */
-
-#main-option-area p {
-  padding: 0px min(calc(9vw / 5), 16px);
-
-  font-size: min(calc(9vw / 5), 16px);
-  color: #fff;
-  white-space: nowrap;
-}
-
-#suboption-area p {
-  padding: 0px min(calc(9vw / 5), 16px);
-
-  font-size: min(calc(9vw / 5), 16px);
-  color: #fff;
-  white-space: nowrap;
-}
-
-#suboptions {
-  padding: 0px min(calc(9vw / 5), 16px) min(calc(9vw / 5), 16px);
-}
-
-#suboptions input[type="checkbox"] {
-  display: none;
-}
-
-#suboptions input[type="checkbox"] + label {
-  padding-left: min(calc(26vw / 5), 35px);
-  margin: 0px min(calc(22vw / 5), 30px) min(calc(22vw / 5), 30px);
-
-  font-size: min(calc(9vw / 5), 16px);
-  display: block;
-  position: relative;
-  color: #fff;
-  cursor: pointer;
-  white-space: nowrap;
-}
-
-#suboptions input[type="checkbox"] + label:before {
-  content: '';
-  display: block;
-  width: min(calc(14vw / 5), 20px);
-  height: min(calc(14vw / 5), 20px);
-  border: 2px solid #d3bb8f;
-  position: absolute;
-  left: 0;
-  top: 0;
-  opacity: .6;
-  -webkit-transition: all .12s, border-color .08s;
-  transition: all .12s, border-color .08s;
-}
-
-#suboptions input[type="checkbox"]:checked + label:before {
-  width: min(calc(9vw / 5), 10px);
-  top: -5px;
-  left: 5px;
-  border-radius: 0;
-  opacity: 1;
-  border-top-color: transparent;
-  border-left-color: transparent;
-  -webkit-transform: rotate(45deg);
-  transform: rotate(45deg);
-}
-
-#reinforce-num-area p {
-  padding: 0px min(calc(9vw / 5), 16px);
-
-  font-size: min(calc(9vw / 5), 16px);
-  color: #fff;
-  white-space: nowrap;
-}
-
-#score-info-area {
-  margin-bottom: 20px;
-  width: fit-content;
-  max-width: 80%;
-
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
-
-  background-color: #424858;
-  border-radius: 5px;
-  outline: 1px solid #d3bb8f;
-  outline-offset: -5px;
-}
-
-#score-info-inner-area {
-  margin: 0px min(calc(14vw / 5), 20px);
-
-  display: flex;
-  align-items: flex-start;
-  justify-items: center;
-  gap: min(calc(11vw / 5), 16px);
-}
-
-#score-type-area p {
-  padding: 0px min(calc(9vw / 5), 16px);
-
-  font-size: min(calc(9vw / 5), 16px);
-  color: #fff;
-  white-space: nowrap;
-}
-
-#slider-area {
-  margin-bottom: min(calc(14vw / 5), 20px);
-  width: fit-content;
-  height: fit-content;
-
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  align-items: center;
-  gap: 30px;
-  flex-wrap: wrap;
-}
-
-#init-score-area p {
-  padding: 0px min(calc(9vw / 5), 16px);
-
-  font-size: min(calc(9vw / 5), 16px);
-  color: #fff;
-  white-space: nowrap;
-}
-
-/* スライダー全体のスタイル */
-.range-slider {
-  margin-bottom: 5px;
-
-  display: flex;
-  align-items: center;
-}
-
-/* レンジスライダーのスタイル */
-.range-slider input[type="range"] {
-  -webkit-appearance: none;
-  width: min(calc(100vw / 5), 200px);
-  height: min(calc(4vw / 5), 8px);
-  background: #383d4b;
-  border-radius: 5px;
-  outline: none;
-  cursor: pointer;
-}
-
-/* スライダーのつまみ */
-.range-slider input[type="range"]::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  width: min(calc(16vw / 5), 22px);
-  height: min(calc(16vw / 5), 22px);
-  background: #d3bb8f;
-  border: min(calc(2vw / 5), 3px) solid #495366;
-  border-radius: 50%;
-  cursor: pointer;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-  transition: transform 0.3s ease;
-}
-
-.range-slider input[type="range"]::-webkit-slider-thumb:hover {
-  transform: scale(1.2); /* ホバー時に拡大 */
-}
-
-.range-slider input[type="range"]::-moz-range-thumb {
-  width: 16px;
-  height: 16px;
-  background: #d3bb8f;
-  border: 1px solid #495366;
-  border-radius: 50%;
-  cursor: pointer;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-  transition: transform 0.3s ease;
-}
-
-.range-slider input[type="range"]::-moz-range-thumb:hover {
-  transform: scale(1.2);
-}
-
-/* 値表示のスタイル */
-#init-score {
-  width: min(calc(45vw / 5), 70px);
-
-  text-align: center;
-  font-size: min(calc(9vw / 5), 16px);
-  background: none;
-  border: none;
-  color: #fff;
-}
-
-#search-score-area p {
-  padding: 0px min(calc(9vw / 5), 16px);
-
-  font-size: min(calc(9vw / 5), 16px);
-  color: #fff;
-  white-space: nowrap;
-}
-
-#search-score {
-  width: min(calc(45vw / 5), 70px);
-
-  text-align: center;
-  font-size: min(calc(9vw / 5), 16px);
-  background: none;
-  border: none;
-  color: #fff;
-}
-
-#output-area {
-  margin-bottom: 20px;
-  width: 80%;
-  max-width: 900px;
-  height: fit-content;
-
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
-
-  background-color: #424858;
-  border-radius: 5px;
-  outline: 1px solid #d3bb8f;
-  outline-offset: -5px;
-}
-
-#artifact-info-inner-area {
-  margin: 0px min(calc(14vw / 5), 20px) min(calc(14vw / 5), 20px);
-  width: fit-content;
-  height: fit-content;
-
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 30px;
-  flex-wrap: wrap;
-}
-
-#output-inner-area {
-  margin: 0px min(calc(14vw / 5), 20px) min(calc(14vw / 5), 20px);
-  width: 100%;
-  height: fit-content;
-
-  display: flex;
-  justify-content: space-evenly;
-  align-items: flex-start;
-  flex-wrap: wrap;
-}
-
-#distribution-area p {
-  padding: 0px min(calc(9vw / 5), 16px);
-
-  font-size: min(calc(9vw / 5), 16px);
-  color: #fff;
-  white-space: nowrap;
-}
-
-#distribution-inner-area {
-  display: flex;
-  align-items: flex-start;
-  justify-content: center;
-}
-
-#distribution-img {
-  margin: 0px min(calc(4vw / 5), 8px) min(calc(9vw / 5), 16px);
-
-  width: min(calc(200vw / 5), 500px);
-  height: auto;
-}
-
-#statistics-area p {
-  padding: 0px min(calc(9vw / 5), 16px);
-  margin-bottom: 0px;
-
-  font-size: min(calc(9vw / 5), 16px);
-  color: #fff;
-  white-space: nowrap;
-}
-
-.data-table {
-  padding: min(calc(11vw / 5), 20px) min(calc(11vw / 5), 20px) 0px;
-  margin-bottom: min(calc(9vw / 5), 16px);
-  width: fit-content;
-
-  display: flex;
-  flex-direction: column;
-  border: none;
-  overflow: hidden;
-  background-color: #495366;
-}
-
-.data-table .row {
-  display: flex;
-  width: 100%;
-  border-top: 1px solid #fff;
-  transition-duration: 300ms;
-}
-
-.data-table .row:last-child {
-  border-bottom: 1px solid #fff;
-}
-
-.data-table .cell {
-  width: min(calc(25vw / 5), 50px);
-
-  flex: 1;
-  padding: min(calc(4vw / 5), 8px);
-  text-align: center;
-  font-size: min(calc(6vw / 5), 12px);
-  color: #fff;
-  background-color: #4B5368;
-}
-
-.data-table .cell:first-child {
-  font-weight: bold;
-  background-color: #4B5368;
-}
-
-.data-table .row:hover {
-  transform: translateY(-15%) scale(1.3);
-}
-
-.data-table .cell:hover {
-  background-color: #424858;
-}
-
-
-#output-inner-area button {
-  border: 1px solid;
-  border-color: #d3bb8f;
-}
 
 </style>

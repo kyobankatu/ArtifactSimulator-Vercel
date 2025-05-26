@@ -1,6 +1,6 @@
 <template>
   <div :class="['overlay', { active: loading }]">
-    <img id="paimon-img" :src="paimonImg">
+    <img class="paimon-img" :src="paimonImg">
     <p>{{ loading_msg }}</p>
     <div id="loading-artifact-container">
       <img
@@ -28,7 +28,7 @@ export default {
 </script>
 
 <style scoped>
-#paimon-img {
+.paimon-img {
   width: min(calc(100vw / 5), 150px);
   height: auto;
 }
