@@ -82,22 +82,22 @@ export default {
     elixirEnabled(newVal) {
       this.$emit('update:elixir', newVal);
     },
-    selected2() {
-      this.$emit('update:elixir_option', [this.selected1, this.selected2]);
-    },
     // 片方の選択肢がもう片方と重複した場合、自動で切り替え
     selected1(newVal, oldVal) {
       if (this.selected2 === newVal) {
         this.selected2 = oldVal;
       }
-      this.$emit('update:elixir_option', [this.selected1, this.selected2]);
+      this.$emit('update:elixirOption', [this.selected1, this.selected2]);
+    },
+    selected2() {
+      this.$emit('update:elixirOption', [this.selected1, this.selected2]);
     },
     // scoreTypeが変わったら選択肢をリセット
     scoreType() {
       const opts = this.filteredOptions1;
       this.selected1 = opts[0].value;
       this.selected2 = opts[1].value;
-      this.$emit('update:elixir_option', [this.selected1, this.selected2]);
+      this.$emit('update:elixirOption', [this.selected1, this.selected2]);
     }
   },
   mounted() {

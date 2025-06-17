@@ -183,7 +183,7 @@ export default {
       level: 0, // レベル
       elixir: false, // エリクサーの使用フラグ
       elixir_option: ["crit-dmg", "crit-rate"], // エリクサーのオプション
-      bold: false, // 棒グラフ表示のフラグ
+      bold: true, // 棒グラフ表示のフラグ
       bold_space: 5.0, // 棒グラフの間隔
       bold_space_formatted: "5.0", // 小数点第２位を四捨五入した棒グラフの間隔
       distributionImg: null, // 確率分布のグラフ
@@ -211,6 +211,10 @@ export default {
         this.main_op = this.mainOptions[pos][0].value; // 配列の最初の要素を設定
       }
     },
+
+    elixir_option(newVal) {
+      console.log('elixir_optionが変更されました:', newVal);
+    }
   },
 
   mounted() {
