@@ -74,7 +74,6 @@
 </template>
 
 <script>
-import axios from 'axios';
 import paimon_def from "@/assets/paimon.webp";
 import paimon_suc from "@/assets/paimon-success.webp";
 import paimon_fail from "@/assets/paimon-failed.webp";
@@ -84,6 +83,8 @@ import ArtifactImport from './components/ArtifactImport.vue';
 import ArtifactInfoArea from './components/ArtifactInfoArea.vue';
 import ScoreInfoArea from './components/ScoreInfoArea.vue';
 import OutputArea from './components/OutputArea.vue';
+import { scanImageApi, getDistributionApi, getDataApi } from './scripts/api.js';
+import { scanInfo, dataInfo } from './scripts/info.js';
 
 export default {
   name: 'App',
@@ -97,14 +98,15 @@ export default {
   },
   data() {
     return {
-      show_scan_info: false,
-      show_data_info: false,
-      show_info_box: false,
-      show_close_button: false,
+      show_scan_info: false, // スキャンinfoの表示フラグ
+      show_data_info: false, // 出力データinfoの表示フラグ
+      show_info_box: false, // infoボックスの表示フラグ
+      show_close_button: false, // infoボックスの閉じるボタンの表示フラグ
       loading: false, // ロード状態フラグ
       scanning: false, // スキャン中のフラグ
       paimonImg: paimon_def, // ロード中パイモン
       loading_msg: "パイモンが計算中...", // 初期メッセージ
+      // ロード画像
       images: [
         require('@/assets/artifact-0.webp'),
         require('@/assets/artifact-1.webp'),
@@ -112,6 +114,7 @@ export default {
         require('@/assets/artifact-3.webp'),
         require('@/assets/artifact-4.webp'),
       ],
+      // メインオプションとメインステータス
       mainOptions: {
         "生の花": [
           { value: "hp", text: "HP実数値" },
@@ -144,32 +147,32 @@ export default {
           { value: "heal", text: "治療効果" },
         ],
       },
-      opacities: [0, 0, 0, 0, 0],
-      intervalId: null, // インターバルID
-      artifactImg: null, // スキャンした画像URLを保存するための変数
-      selectedFile: null, // 選択したファイルを保持
-      fileName: '', // ファイル名を保持
-      initScore: 0,
-      initScore_formatted: "0.0",
-      searchScore: 40,
-      searchScore_formatted: "40.0",
-      option: 3,
-      position: "生の花",
-      main_op: "atk",
+      opacities: [0, 0, 0, 0, 0], // ロード中に表示させるアイコンを指定 (花、羽、時計、杯、冠)
+      intervalId: null, // ロードアニメーションのインターバルID
+      artifactImg: null, // スキャンした画像のURL
+      selectedFile: null, // 選択したファイル
+      fileName: '', // 選択したファイル名
+      initScore: 0, // 初期スコア
+      initScore_formatted: "0.0", // 小数点第２位を四捨五入した初期スコア
+      searchScore: 40, // 調査スコア
+      searchScore_formatted: "40.0", // 小数点第２位を四捨五入した調査スコア
+      option: 3, // 初期オプション数
+      position: "生の花", // 部位
+      main_op: "atk", // メインステータス
       is_crit_rate: false, // 会心率のフラグ
-      is_crit_dmg: false,  // 会心ダメージのフラグ
-      is_atk: false,       // 攻撃力のフラグ
-      is_hp: false,       // HPのフラグ
-      is_em: false,       // 熟知のフラグ
-      count: 1,            // 強化回数
-      score_type: "atk",   // スコア計算方法
+      is_crit_dmg: false, // 会心ダメージのフラグ
+      is_atk: false, // 攻撃力のフラグ
+      is_hp: false, // HPのフラグ
+      is_em: false, // 熟知のフラグ
+      count: 1, // 強化回数
+      score_type: "atk", // スコア計算方法
       level: 0, // レベル
-      distributionImg: null,  // 確率分布のグラフ
+      distributionImg: null, // 確率分布のグラフ
       percentile: [["100.0", "0"], ["0", "0"], ["25", "0"], ["50", "0"], ["75", "0"], ["100", "0"]],
-      average: 0,   // 平均
-      variance: 0,   // 分散
-      skewness: 0,   // 歪度
-      kurtosis: 0,   // 尖度
+      average: 0, // 平均
+      variance: 0, // 分散
+      skewness: 0, // 歪度
+      kurtosis: 0, // 尖度
     };
   },
 
@@ -198,35 +201,10 @@ export default {
 
   methods: {
     scanInfo(open) {
-      if (open) {
-        this.show_scan_info = true;
-        this.show_close_button = true;
-        setTimeout(() => {
-          this.show_info_box = true;
-        }, 100);
-      } else {
-        this.show_info_box = false;
-        setTimeout(() => {
-          this.show_close_button = false;
-          this.show_scan_info = false;
-        }, 400);
-      }
+      scanInfo(this, open);
     },
-
     dataInfo(open) {
-      if (open) {
-        this.show_data_info = true;
-        this.show_close_button = true;
-        setTimeout(() => {
-          this.show_info_box = true;
-        }, 100);
-      } else {
-        this.show_info_box = false;
-        setTimeout(() => {
-          this.show_close_button = false;
-          this.show_data_info = false;
-        }, 400);
-      }
+      dataInfo(this, open);
     },
 
     handleFileChange(event) {
@@ -264,16 +242,7 @@ export default {
       formData.append('score_type', this.score_type);
 
       try {
-        // POSTリクエストを送信
-        const response = await axios.post('https://artifact-simulator-docker.onrender.com/scan-img', formData, {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-          responseType: 'json', // JSON形式でレスポンスを取得
-        });
-
-        // 各種数値を変更
-        const data = response.data;
+        const data = await scanImageApi(formData);
 
         this.initScore = data.init;
         this.initScore_formatted = this.initScore.toFixed(1);
@@ -390,25 +359,14 @@ export default {
         // 開始時にインターバルをセット
         this.startOpacityAnimation();
 
-        // POSTリクエストを送信
-        const response_dist = await axios.post('https://artifact-simulator-docker.onrender.com/get-dist', requestBody, {
-          responseType: 'blob', // 画像データを受け取る
-        });
-
-        // Blobから画像URLを生成
-        const distImg = URL.createObjectURL(response_dist.data);
-
-        // 画像を更新
-        this.distributionImg = distImg;
+        // 画像取得
+        const distBlob = await getDistributionApi(requestBody);
+        this.distributionImg = URL.createObjectURL(distBlob);
 
         console.log('画像を更新しました。');
 
-        // POSTリクエストを送信
-        const response_data = await axios.post('https://artifact-simulator-docker.onrender.com/get-data', requestBody, {
-          responseType: 'json', // JSON形式でレスポンスを取得
-        });
-
-        const data = response_data.data
+        // データ取得
+        const data = await getDataApi(requestBody);
 
         this.percentile = data.percentile
         this.average = data.average
