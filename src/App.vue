@@ -38,6 +38,7 @@
           :is_hp="is_hp"
           :is_em="is_em"
           :count="count"
+          :level="level"
           @update:option="option = $event"
           @update:position="position = $event"
           @update:main_op="main_op = $event"
@@ -47,6 +48,7 @@
           @update:is_hp="is_hp = $event"
           @update:is_em="is_em = $event"
           @update:count="count = $event"
+          @update:level="level = $event"
         />
 
         <div class="input-area-right">
@@ -211,10 +213,6 @@ export default {
         this.main_op = this.mainOptions[pos][0].value; // 配列の最初の要素を設定
       }
     },
-
-    elixir_option(newVal) {
-      console.log('elixir_optionが変更されました:', newVal);
-    }
   },
 
   mounted() {

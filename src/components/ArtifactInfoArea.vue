@@ -51,15 +51,29 @@
           <label for="is-em">元素熟知</label>
         </div>
       </div>
-      <div class="reinforce-num-area info-section">
-        <p>強化回数</p>
-        <select class="def-selecter" :value="count" @change="$emit('update:count', Number($event.target.value))">
-          <option value="1">1</option>
-          <option value="2">2</option>
-          <option value="3">3</option>
-          <option value="4">4</option>
-          <option value="5">5</option>
-        </select>
+      <div class="artifact-info-right-area">
+        <div class="reinforce-num-area info-section">
+          <p>強化回数</p>
+          <select class="def-selecter" :value="count" @change="$emit('update:count', Number($event.target.value))">
+            <option
+              v-for="n in reinforceOptions"
+              :key="n"
+              :value="n">
+              {{ n }}
+            </option>
+          </select>
+        </div>
+        <div class="level-area info-section">
+          <p>レベル</p>
+          <select class="def-selecter" :value="levelGroup" @change="$emit('update:level', Number($event.target.value))">
+            <option value="0">0～3</option>
+            <option value="4">4～7</option>
+            <option value="8">8～11</option>
+            <option value="12">12～15</option>
+            <option value="16">16～19</option>
+            <option value="20">20</option>
+          </select>
+        </div>
       </div>
     </div>
   </div>
@@ -79,7 +93,18 @@ export default {
     is_atk: Boolean,
     is_hp: Boolean,
     is_em: Boolean,
-    count: Number
+    count: Number,
+    level: Number
+  },
+  computed: {
+    levelGroup() {
+      return Math.floor(this.level / 4) * 4;
+    },
+    reinforceOptions() {
+      this.$emit('update:count', 1);
+      const max = 6 - Math.floor(this.level / 4);
+      return Array.from({ length: max - 1 }, (_, i) => i + 1);
+    }
   }
 }
 </script>
@@ -272,4 +297,19 @@ export default {
   white-space: nowrap;
 }
 
+.level-area p {
+  padding: 0px min(calc(9vw / 5), 16px);
+
+  font-size: min(calc(9vw / 5), 16px);
+  color: #fff;
+  white-space: nowrap;
+}
+
+.level-area {
+  margin: min(calc(11vw / 5), 20px) 0px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 </style>
