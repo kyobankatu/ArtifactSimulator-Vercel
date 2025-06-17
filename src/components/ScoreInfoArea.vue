@@ -87,7 +87,7 @@ export default {
 .score-info-area {
   margin-bottom: 20px;
   width: fit-content;
-  max-width: 80%;
+  max-width: 100%;
 
   display: flex;
   flex-direction: column;
@@ -138,7 +138,6 @@ export default {
   white-space: nowrap;
 }
 
-/* スライダー全体のスタイル */
 .range-slider {
   margin-bottom: 5px;
 
@@ -146,50 +145,10 @@ export default {
   align-items: center;
 }
 
-/* レンジスライダーのスタイル */
 .range-slider input[type="range"] {
-  -webkit-appearance: none;
   width: min(calc(100vw / 5), 200px);
-  height: min(calc(4vw / 5), 8px);
-  background: #383d4b;
-  border-radius: 5px;
-  outline: none;
-  cursor: pointer;
 }
 
-/* スライダーのつまみ */
-.range-slider input[type="range"]::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  width: min(calc(16vw / 5), 22px);
-  height: min(calc(16vw / 5), 22px);
-  background: #d3bb8f;
-  border: min(calc(2vw / 5), 3px) solid #495366;
-  border-radius: 50%;
-  cursor: pointer;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-  transition: transform 0.3s ease;
-}
-
-.range-slider input[type="range"]::-webkit-slider-thumb:hover {
-  transform: scale(1.2); /* ホバー時に拡大 */
-}
-
-.range-slider input[type="range"]::-moz-range-thumb {
-  width: 16px;
-  height: 16px;
-  background: #d3bb8f;
-  border: 1px solid #495366;
-  border-radius: 50%;
-  cursor: pointer;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-  transition: transform 0.3s ease;
-}
-
-.range-slider input[type="range"]::-moz-range-thumb:hover {
-  transform: scale(1.2);
-}
-
-/* 値表示のスタイル */
 .init-score {
   width: min(calc(45vw / 5), 70px);
 

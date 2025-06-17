@@ -38,7 +38,7 @@
       </div>
       <div class="suboption-area info-section">
         <p>サブオプション</p>
-        <div class="suboptions">
+        <div class="suboptions def-checkbox">
           <input type="checkbox" id="is-crit-rate" :checked="is_crit_rate" @change="$emit('update:is_crit_rate', $event.target.checked)" />
           <label for="is-crit-rate">会心率</label>
           <input type="checkbox" id="is-crit-dmg" :checked="is_crit_dmg" @change="$emit('update:is_crit_dmg', $event.target.checked)" />
@@ -262,48 +262,6 @@ export default {
 
 .suboptions {
   padding: 0px min(calc(9vw / 5), 16px) min(calc(9vw / 5), 16px);
-}
-
-.suboptions input[type="checkbox"] {
-  display: none;
-}
-
-.suboptions input[type="checkbox"] + label {
-  padding-left: min(calc(26vw / 5), 35px);
-  margin: 0px min(calc(22vw / 5), 30px) min(calc(22vw / 5), 30px);
-
-  font-size: min(calc(9vw / 5), 16px);
-  display: block;
-  position: relative;
-  color: #fff;
-  cursor: pointer;
-  white-space: nowrap;
-}
-
-.suboptions input[type="checkbox"] + label:before {
-  content: '';
-  display: block;
-  width: min(calc(14vw / 5), 20px);
-  height: min(calc(14vw / 5), 20px);
-  border: 2px solid #d3bb8f;
-  position: absolute;
-  left: 0;
-  top: 0;
-  opacity: .6;
-  -webkit-transition: all .12s, border-color .08s;
-  transition: all .12s, border-color .08s;
-}
-
-.suboptions input[type="checkbox"]:checked + label:before {
-  width: min(calc(9vw / 5), 10px);
-  top: -5px;
-  left: 5px;
-  border-radius: 0;
-  opacity: 1;
-  border-top-color: transparent;
-  border-left-color: transparent;
-  -webkit-transform: rotate(45deg);
-  transform: rotate(45deg);
 }
 
 .reinforce-num-area p {

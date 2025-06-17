@@ -8,11 +8,40 @@
     </div>
     
     <div class="output-inner-area">
-      <div class="distribution-area info-section">
-        <p>確率分布</p>
-        <!-- 画像表示 -->
-        <div class="distribution-inner-area" v-if="distributionImg">
-          <img class="distribution-img" :src="distributionImg" alt="Distribution Image" />
+      <div class="distribution-area">
+        <div class="distribution-result-area info-section">
+          <p class="distribution-area-title">確率分布</p>
+          <!-- 画像表示 -->
+          <div class="distribution-result-inner-area" v-if="distributionImg">
+            <img class="distribution-img" :src="distributionImg" alt="Distribution Image" />
+          </div>
+        </div>
+        <div class="distribution-info-area info-section">
+          <p class="distribution-area-title">区間でまとめる</p>
+          <div class="range-slider">
+            <input
+              id="bold-space-slider"
+              type="range"
+              min="0"
+              max="20"
+              step="0.5"
+              :value="bold_space_formatted"
+              @input="$emit('updateBoldSpace', $event.target.value)"
+            />
+            <input
+              v-if="bold_space_formatted !== '0.0'"
+              class="bold-space"
+              type="number"
+              min="0"
+              max="20"
+              step="0.5"
+              :value="bold_space_formatted"
+              @blur="$emit('updateBoldSpace', $event.target.value)"
+            />
+            <p v-if="bold_space_formatted === '0.0'" class="bold-space-label">
+              通常表示
+            </p>
+          </div>
         </div>
       </div>
       <div class="statistics-area info-section">
@@ -56,9 +85,10 @@ export default {
     average: [Number, String],
     variance: [Number, String],
     skewness: [Number, String],
-    kurtosis: [Number, String]
+    kurtosis: [Number, String],
+    bold_space_formatted: [Number, String]
   },
-  emits: ["update-output", "show-info"]
+  emits: ["update-output", "show-info", "updateBoldSpace"]
 }
 </script>
 
@@ -103,7 +133,14 @@ export default {
   flex-wrap: wrap;
 }
 
-.distribution-area p {
+.distribution-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.distribution-area-title {
   padding: 0px min(calc(9vw / 5), 16px);
 
   font-size: min(calc(9vw / 5), 16px);
@@ -111,7 +148,7 @@ export default {
   white-space: nowrap;
 }
 
-.distribution-inner-area {
+.distribution-result-inner-area {
   display: flex;
   align-items: flex-start;
   justify-content: center;
@@ -122,6 +159,45 @@ export default {
 
   width: min(calc(200vw / 5), 500px);
   height: auto;
+}
+
+.distribution-result-area {
+  margin-bottom: min(calc(9vw / 5), 16px);
+  width: fit-content;
+  height: fit-content;
+}
+
+.range-slider {
+  margin-bottom: 5px;
+
+  display: flex;
+  align-items: center;
+}
+
+.range-slider input[type="range"] {
+  width: min(calc(60vw / 5), 100px);
+}
+
+.bold-space {
+  width: min(calc(45vw / 5), 70px);
+
+  text-align: center;
+  font-size: min(calc(9vw / 5), 16px);
+  background: none;
+  border: none;
+  color: #fff;
+}
+
+.bold-space-label {
+  margin: 0px;
+  padding: 0px 1px;
+  width: min(calc(45vw / 5), 70px);
+
+  text-align: center;
+  font-size: min(calc(9vw / 5), 16px);
+  background: none;
+  border: none;
+  color: #fff;
 }
 
 .statistics-area p {

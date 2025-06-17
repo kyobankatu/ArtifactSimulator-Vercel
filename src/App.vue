@@ -49,18 +49,29 @@
           @update:count="count = $event"
         />
 
-        <ScoreInfoArea
-          :score_type="score_type"
-          :initScore_formatted="initScore_formatted"
-          :searchScore_formatted="searchScore_formatted"
-          @update:score_type="score_type = $event"
-          @updateInitScore="updateInitScore"
-          @updateSearchScore="updateSearchScore"
-        />
+        <div class="input-area-right">
+          <ScoreInfoArea
+            :score_type="score_type"
+            :initScore_formatted="initScore_formatted"
+            :searchScore_formatted="searchScore_formatted"
+            @update:score_type="score_type = $event"
+            @updateInitScore="updateInitScore"
+            @updateSearchScore="updateSearchScore"
+          />
+
+          <ElixirArea
+            :scoreType="score_type"
+            :elixir="elixir"
+            :elixirOption="elixir_option"
+            @update:elixir="elixir = $event"
+            @update:elixirOption="elixir_option = $event"
+          />
+        </div>
       </div>
 
       <OutputArea
         :distributionImg="distributionImg"
+        :bold_space_formatted="bold_space_formatted"
         :percentile="percentile"
         :average="average"
         :variance="variance"
@@ -68,6 +79,7 @@
         :kurtosis="kurtosis"
         @update-output="updateOutput"
         @show-info="dataInfo(true)"
+        @updateBoldSpace="updateBoldSpace"
       />
     </div>
   </body>
@@ -83,6 +95,7 @@ import ArtifactImport from './components/ArtifactImport.vue';
 import ArtifactInfoArea from './components/ArtifactInfoArea.vue';
 import ScoreInfoArea from './components/ScoreInfoArea.vue';
 import OutputArea from './components/OutputArea.vue';
+import ElixirArea from './components/ElixirArea.vue';
 import { scanImageApi, getDistributionApi, getDataApi } from './scripts/api.js';
 import { scanInfo, dataInfo } from './scripts/info.js';
 
@@ -94,7 +107,8 @@ export default {
     ArtifactImport,
     ArtifactInfoArea,
     ScoreInfoArea,
-    OutputArea
+    OutputArea,
+    ElixirArea
   },
   data() {
     return {
@@ -167,6 +181,11 @@ export default {
       count: 1, // 強化回数
       score_type: "atk", // スコア計算方法
       level: 0, // レベル
+      elixir: false, // エリクサーの使用フラグ
+      elixir_option: ["crit-dmg", "crit-rate"], // エリクサーのオプション
+      bold: false, // 棒グラフ表示のフラグ
+      bold_space: 5.0, // 棒グラフの間隔
+      bold_space_formatted: "5.0", // 小数点第２位を四捨五入した棒グラフの間隔
       distributionImg: null, // 確率分布のグラフ
       percentile: [["100.0", "0"], ["0", "0"], ["25", "0"], ["50", "0"], ["75", "0"], ["100", "0"]],
       average: 0, // 平均
@@ -349,7 +368,12 @@ export default {
           init: this.initScore,
           score: this.searchScore,
           count: this.count,
+          start_count: Math.floor(this.level / 4),
           score_type: this.score_type,
+          elixir: this.elixir,
+          elixir_option: this.elixir_option,
+          bold: this.bold,
+          bold_space: this.bold_space
         };
 
         this.loading = true;
@@ -422,6 +446,28 @@ export default {
         this.searchScore = tmp_score
       }
       this.searchScore_formatted = this.searchScore.toFixed(1);
+    },
+
+    updateBoldSpace(value) {
+      // 棒グラフの間隔を更新
+      let tmp_space = parseFloat(value, 10);
+      tmp_space = Math.floor(tmp_space * 10) / 10;
+      if (!isNaN(tmp_space)) {
+        this.bold_space = 0;
+      } if (tmp_space < 0) {
+        this.bold_space = 0;
+      } else if (tmp_space > 20) {
+        this.bold_space = 20
+      } else {
+        this.bold_space = tmp_space
+      }
+
+      if (this.bold_space == 0) {
+        this.bold = false;
+      } else {
+        this.bold = true;
+      }
+      this.bold_space_formatted = this.bold_space.toFixed(1);
     },
 
     updateLoadingMsg(is_failed) {
@@ -515,6 +561,30 @@ body {
   visibility: visible;
 }
 
+/* 値入力エリア */
+.input-area {
+  margin: 0px min(calc(14vw / 5), 20px) min(calc(14vw / 5), 20px);
+  width: 100%;
+  height: fit-content;
+
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: min(calc(14vw / 5), 20px);
+  flex-wrap: wrap;
+}
+
+/* 入力エリアの右側 */
+.input-area-right {
+  width: fit-content;
+  height: fit-content;
+
+  display: flex;
+  flex-direction: column; /* スコア情報を縦に並べる */
+  justify-content: flex-start;
+  align-items: center;
+}
+
 /* 基本的なボタンスタイル */
 .def-button {
   padding: min(calc(6vw / 5), 10px) min(calc(14vw / 5), 20px);
@@ -540,17 +610,94 @@ body {
   transform: scale(0.99, 0.99) translateY(2px);
 }
 
-/* 値入力エリア */
-.input-area {
-  margin: 0px min(calc(14vw / 5), 20px) min(calc(14vw / 5), 20px);
-  width: 100%;
-  height: fit-content;
+/* 基本的なチェックボックス */
+.def-checkbox input[type="checkbox"] {
+  display: none;
+}
 
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  gap: min(calc(14vw / 5), 20px);
-  flex-wrap: wrap;
+.def-checkbox input[type="checkbox"] + label {
+  padding-left: min(calc(26vw / 5), 35px);
+  margin: 0px min(calc(22vw / 5), 30px) min(calc(22vw / 5), 30px);
+
+  font-size: min(calc(9vw / 5), 16px);
+  display: block;
+  position: relative;
+  color: #fff;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.def-checkbox input[type="checkbox"] + label:before {
+  content: '';
+  display: block;
+  width: min(calc(14vw / 5), 20px);
+  height: min(calc(14vw / 5), 20px);
+  border: 2px solid #d3bb8f;
+  position: absolute;
+  left: 0;
+  top: 0;
+  opacity: .6;
+  -webkit-transition: all .12s, border-color .08s;
+  transition: all .12s, border-color .08s;
+}
+
+.def-checkbox input[type="checkbox"]:checked + label:before {
+  width: min(calc(9vw / 5), 10px);
+  top: -5px;
+  left: 5px;
+  border-radius: 0;
+  opacity: 1;
+  border-top-color: transparent;
+  border-left-color: transparent;
+  -webkit-transform: rotate(45deg);
+  transform: rotate(45deg);
+}
+
+/* 基本的なスイッチボタン */
+.def-switch {
+  position: relative;
+  display: inline-block;
+  width: min(calc(30vw / 5), 48px);
+  height: min(calc(16vw / 5), 24px);
+  vertical-align: middle;
+}
+
+.def-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.def-switch-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: #4B5368;
+  border: 1px solid #d3bb8f;
+  border-radius: 24px;
+  transition: background 0.3s;
+}
+
+.def-switch input:checked + .def-switch-slider {
+  background: #d3bb8f;
+}
+
+.def-switch-slider:before {
+  content: "";
+  position: absolute;
+  left: min(calc(2vw / 5), 3px);
+  top: min(calc(2vw / 5), 3px);
+  width: min(calc(9vw / 5), 16px);
+  height: min(calc(9vw / 5), 16px);
+  border-radius: 50%;
+  background: #d3bb8f;
+  transition: transform 0.3s;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.def-switch input:checked + .def-switch-slider:before {
+  transform: translateX(min(calc(16vw / 5), 24px));
+  background: #4B5368;
 }
 
 /* 基本的な情報ボックス */
@@ -605,6 +752,46 @@ body {
   color: white;
 }
 
-/* ここまでアニメーション */
+/* 基本的なスライダー */
+.range-slider input[type="range"] {
+  -webkit-appearance: none;
+  height: min(calc(4vw / 5), 8px);
+  background: #383d4b;
+  border-radius: 5px;
+  outline: none;
+  cursor: pointer;
+}
+
+/* スライダーのつまみ */
+.range-slider input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: min(calc(16vw / 5), 22px);
+  height: min(calc(16vw / 5), 22px);
+  background: #d3bb8f;
+  border: min(calc(2vw / 5), 3px) solid #495366;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  transition: transform 0.3s ease;
+}
+
+.range-slider input[type="range"]::-webkit-slider-thumb:hover {
+  transform: scale(1.2); /* ホバー時に拡大 */
+}
+
+.range-slider input[type="range"]::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  background: #d3bb8f;
+  border: 1px solid #495366;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  transition: transform 0.3s ease;
+}
+
+.range-slider input[type="range"]::-moz-range-thumb:hover {
+  transform: scale(1.2);
+}
 
 </style>
