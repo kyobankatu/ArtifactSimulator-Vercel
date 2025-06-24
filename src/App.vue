@@ -114,24 +114,45 @@ export default {
   },
   data() {
     return {
-      show_scan_info: false, // スキャンinfoの表示フラグ
-      show_data_info: false, // 出力データinfoの表示フラグ
-      show_info_box: false, // infoボックスの表示フラグ
-      show_close_button: false, // infoボックスの閉じるボタンの表示フラグ
-      loading: false, // ロード状態フラグ
-      scanning: false, // スキャン中のフラグ
-      paimonImg: paimon_def, // ロード中パイモン
-      loading_msg: "パイモンが計算中...", // 初期メッセージ
-      // ロード画像
-      images: [
+      // --- オーバーレイ関連 ---
+      show_scan_info:      false,               // スキャンinfoの表示フラグ
+      show_data_info:      false,               // 出力データinfoの表示フラグ
+      show_info_box:       false,               // infoボックスの表示フラグ
+      show_close_button:   false,               // infoボックスの閉じるボタンの表示フラグ
+
+      // --- ロード・スキャン関連 ---
+      loading:             false,               // ロード状態フラグ
+      scanning:            false,               // スキャン中のフラグ
+      paimonImg:           paimon_def,          // ロード中パイモン画像
+      loading_msg:         "パイモンが計算中...",  // ロード中メッセージ
+      images: [                                 // ロード中の画像配列
         require('@/assets/artifact-0.webp'),
         require('@/assets/artifact-1.webp'),
         require('@/assets/artifact-2.webp'),
         require('@/assets/artifact-3.webp'),
         require('@/assets/artifact-4.webp'),
-      ],
-      // メインオプションとメインステータス
-      mainOptions: {
+      ],                                        // ロード画像配列
+      opacities:           [0, 0, 0, 0, 0],     // ロード中アイコンの透明度
+      intervalId:          null,                // ロードアニメーションのインターバルID
+
+      // --- ファイル・画像関連 ---
+      artifactImg:         null,         // スキャンした画像のURL
+      selectedFile:        null,         // 選択したファイル
+      fileName:            '',           // 選択したファイル名
+
+      // --- スコア・オプション関連 ---
+      initScore:           0,            // 初期スコア
+      initScore_formatted: "0.0",        // 小数点第１位までの初期スコア
+      searchScore:         40,           // 調査スコア
+      searchScore_formatted:"40.0",      // 小数点第１位までの調査スコア
+      option:              3,            // 初期オプション数
+      count:               1,            // 強化回数
+      level:               0,            // レベル
+
+      // --- 聖遺物部位・メインオプション関連 ---
+      position:            "生の花",      // 部位
+      main_op:             "atk",        // メインステータス
+      mainOptions: {                     // 部位ごとのメインオプション
         "生の花": [
           { value: "hp", text: "HP実数値" },
         ],
@@ -162,55 +183,77 @@ export default {
           { value: "crit-dmg", text: "会心ダメージ" },
           { value: "heal", text: "治療効果" },
         ],
-      },
-      opacities: [0, 0, 0, 0, 0], // ロード中に表示させるアイコンを指定 (花、羽、時計、杯、冠)
-      intervalId: null, // ロードアニメーションのインターバルID
-      artifactImg: null, // スキャンした画像のURL
-      selectedFile: null, // 選択したファイル
-      fileName: '', // 選択したファイル名
-      initScore: 0, // 初期スコア
-      initScore_formatted: "0.0", // 小数点第２位を四捨五入した初期スコア
-      searchScore: 40, // 調査スコア
-      searchScore_formatted: "40.0", // 小数点第２位を四捨五入した調査スコア
-      option: 3, // 初期オプション数
-      position: "生の花", // 部位
-      main_op: "atk", // メインステータス
-      is_crit_rate: false, // 会心率のフラグ
-      is_crit_dmg: false, // 会心ダメージのフラグ
-      is_atk: false, // 攻撃力のフラグ
-      is_hp: false, // HPのフラグ
-      is_em: false, // 熟知のフラグ
-      count: 1, // 強化回数
-      score_type: "atk", // スコア計算方法
-      level: 0, // レベル
-      elixir: false, // エリクサーの使用フラグ
-      elixir_option: ["crit-dmg", "crit-rate"], // エリクサーのオプション
-      bold: true, // 棒グラフ表示のフラグ
-      bold_space: 5.0, // 棒グラフの間隔
-      bold_space_formatted: "5.0", // 小数点第２位を四捨五入した棒グラフの間隔
-      distributionImg: null, // 確率分布のグラフ
-      percentile: [["100.0", "0"], ["0", "0"], ["25", "0"], ["50", "0"], ["75", "0"], ["100", "0"]],
-      average: 0, // 平均
-      variance: 0, // 分散
-      skewness: 0, // 歪度
-      kurtosis: 0, // 尖度
+      },                                  // 部位ごとのメインオプション
+
+      // --- サブオプションの有効フラグ ---
+      is_crit_rate:        false,         // 会心率のフラグ
+      is_crit_dmg:         false,         // 会心ダメージのフラグ
+      is_atk:              false,         // 攻撃力%のフラグ
+      is_hp:               false,         // HP%のフラグ
+      is_em:               false,         // 熟知のフラグ
+
+      // --- スコア計算・エリクサー関連 ---
+      score_type:          "atk",                     // スコア計算方法(攻撃力換算, HP換算, 熟知換算)
+      elixir:              false,                     // エリクサー使用フラグ
+      elixir_option:       ["crit-dmg", "crit-rate"], // エリクサーのオプション
+
+      // --- 棒グラフ・分布画像関連 ---
+      bold:                true,          // 棒グラフ表示フラグ
+      bold_space:          5.0,           // 棒グラフの間隔
+      bold_space_formatted:"5.0",         // 小数点第１位までの棒グラフ間隔
+      distributionImg:     null,          // 確率分布グラフ画像
+
+      // --- 出力データ関連 ---
+      percentile:          [["100.0", "0"], ["0", "0"], ["25", "0"], ["50", "0"], ["75", "0"], ["100", "0"]], // パーセンタイル
+      average:             0,             // 平均
+      variance:            0,             // 分散
+      skewness:            0,             // 歪度
+      kurtosis:            0,             // 尖度
     };
   },
 
   computed: {
-    // position に基づいて main_op をフィルタリング
+    /*
+    部位に応じてメインオプションをフィルタリングする
+
+    生の花:
+      - HP実数値
+    死の羽:
+      - 攻撃力実数値
+    時の砂:
+      - HP%
+      - 攻撃力%
+      - 防御力%
+      - 元素チャージ効率
+      - 元素熟知
+    空の杯:
+      - 攻撃力%
+      - HP%
+      - 防御力%
+      - 元素熟知
+      - 元素ダメージ
+      - 物理ダメージ
+    理の冠:
+      - 攻撃力%
+      - HP%
+      - 防御力%
+      - 元素熟知
+      - 会心率
+      - 会心ダメージ
+      - 治療効果
+    */
     filteredMainOptions() {
       return this.mainOptions[this.position];
     },
   },
 
   watch: {
-    // position が変更されたら main_op をリセット
+    // メインオプションが変更されたときに、main_op に最初の要素を設定
     position(pos) {
       if (this.scanning) {
         this.scanning = false;
       } else {
-        this.main_op = this.mainOptions[pos][0].value; // 配列の最初の要素を設定
+        this.main_op = this.mainOptions[pos][0].value;
       }
     },
   },
@@ -221,20 +264,22 @@ export default {
   },
 
   methods: {
+    // スキャンに関するinfoを表示
     scanInfo(open) {
       scanInfo(this, open);
     },
+
+    // 出力データに関するinfoを表示
     dataInfo(open) {
       dataInfo(this, open);
     },
 
+    // ファイル選択時に呼ばれる
     handleFileChange(event) {
-      // ファイル選択時に呼ばれる
       const file = event.target.files[0];
       if (file && file.type.startsWith('image/')) {
         this.selectedFile = file;
-        this.fileName = file.name; // ファイル名を表示
-        // 画像データをURLとして表示
+        this.fileName = file.name;
         const artifactImg = URL.createObjectURL(file);
         this.artifactImg = artifactImg;
       } else {
@@ -242,41 +287,43 @@ export default {
       }
     },
 
+    // APIを使用して画像を解析
     async scanImage() {
       if (!this.selectedFile) {
         alert('画像を選択してください');
         return;
       }
       
+      // ローディング状態の設定
       this.loading = true;
       this.scanning = true;
-
-      this.paimonImg = paimon_def; // 初期状態の画像に設定
+      this.paimonImg = paimon_def;
       this.loading_msg = "パイモンが計算中...";
-      // 開始時にインターバルをセット
+
+      // アニメーションの開始
       this.startOpacityAnimation();
 
+      // 送信するデータの準備
       const formData = new FormData();
-      // 画像を 'image' という名前で追加
       formData.append('image', this.selectedFile);
-      // スコア計算方法を 'score_type' という名前で追加
       formData.append('score_type', this.score_type);
 
       try {
+        // api.js内の関数を呼び出して画像をスキャン
         const data = await scanImageApi(formData);
 
-        this.initScore = data.init;
-        this.initScore_formatted = this.initScore.toFixed(1);
-        this.is_atk = data.is_atk;
-        this.is_hp = data.is_hp;
-        this.is_em = data.is_em;
-        this.is_crit_rate = data.is_crit_rate;
-        this.is_crit_dmg = data.is_crit_dmg;
-        this.option = data.option;
-        this.position = data.position
-        this.main_op = data.main_op;
-        this.score_type = data.score_type;
-        this.level = data.level;
+        this.initScore = data.init;                             // 初期スコア
+        this.initScore_formatted = this.initScore.toFixed(1);   // 小数点第１位までの初期スコア
+        this.is_atk = data.is_atk;                              // 攻撃力%のフラグ
+        this.is_hp = data.is_hp;                                // HP%のフラグ
+        this.is_em = data.is_em;                                // 元素熟知のフラグ
+        this.is_crit_rate = data.is_crit_rate;                  // 会心率のフラグ
+        this.is_crit_dmg = data.is_crit_dmg;                    // 会心ダメージのフラグ
+        this.option = data.option;                              // オプションの数
+        this.position = data.position ;                         // 部位
+        this.main_op = data.main_op;                            // メインステータス
+        this.score_type = data.score_type;                      // スコア計算方法
+        this.level = data.level;                                // レベル
 
         // チェックボックスやスライダーの値を更新
         const atk_box = document.getElementById('is-atk');
@@ -298,7 +345,7 @@ export default {
         // スライダーの値を設定
         init_slider.value = this.initScore;
 
-        // ドロップダウンの値を設定
+        // ラジオボタンの値を設定
         if (this.option == 3){
           option_3.checked = true
           option_4.checked = false
@@ -307,10 +354,21 @@ export default {
           option_4.checked = true
         }
 
-        // レベルによって強化回数を設定
+        /*
+        レベルによって強化回数を設定
+
+        レベル    強化回数
+        0-3      5回
+        4-7      4回
+        8-11     3回
+        12-15    2回
+        16-19    1回
+        20       0回
+        */
+
         this.count = 5 - Math.floor(this.level / 4);
         if (this.count == 0) {
-          this.count = 1; // レベルが0の場合は1に設定
+          this.count = 1;
         }
 
         // 成功した場合の画像変更
@@ -332,7 +390,7 @@ export default {
       }
     },
 
-    // ローディング中のアニメーションを開始
+    // ローディングのアニメーションを開始
     startOpacityAnimation() {
       this.opacities = [0, 0, 0, 0, 0]
       let index = 0;
@@ -356,40 +414,40 @@ export default {
       }
     },
 
+    // 出力データの更新
     async updateOutput() {
       try {
         // リクエストボディの作成
         const requestBody = {
-          option: this.option,
-          main_op: this.main_op,
-          crit_dmg: this.is_crit_dmg,
-          crit_rate: this.is_crit_rate,
-          atk: this.is_atk,
-          hp: this.is_hp,
-          em: this.is_em,
-          init: this.initScore,
-          score: this.searchScore,
-          count: this.count,
-          start_count: Math.floor(this.level / 4),
-          score_type: this.score_type,
-          elixir: this.elixir,
-          elixir_option: this.elixir_option,
-          bold: this.bold,
-          bold_space: this.bold_space
+          option: this.option,                        // オプション数
+          main_op: this.main_op,                      // メインステータス
+          crit_dmg: this.is_crit_dmg,                 // 会心ダメージのフラグ
+          crit_rate: this.is_crit_rate,               // 会心率のフラグ
+          atk: this.is_atk,                           // 攻撃力%のフラグ
+          hp: this.is_hp,                             // HP%のフラグ
+          em: this.is_em,                             // 元素熟知のフラグ
+          init: this.initScore,                       // 初期スコア
+          score: this.searchScore,                    // 調査スコア
+          count: this.count,                          // 強化回数
+          start_count: Math.floor(this.level / 4),    // 開始時の強化回数
+          score_type: this.score_type,                // スコア計算方法
+          elixir: this.elixir,                        // エリクサー使用フラグ
+          elixir_option: this.elixir_option,          // エリクサーのオプション
+          bold: this.bold,                            // 棒グラフ表示フラグ
+          bold_space: this.bold_space         ,       // 棒グラフの間隔
         };
-
+        
+        // ローディング状態の設定
         this.loading = true;
-
-        this.paimonImg = paimon_def; // 初期状態の画像に設定
+        this.paimonImg = paimon_def;
         this.loading_msg = "パイモンが計算中...";
-        // 開始時にインターバルをセット
+
+        // アニメーションの開始
         this.startOpacityAnimation();
 
         // 画像取得
         const distBlob = await getDistributionApi(requestBody);
         this.distributionImg = URL.createObjectURL(distBlob);
-
-        console.log('画像を更新しました。');
 
         // データ取得
         const data = await getDataApi(requestBody);
@@ -418,8 +476,8 @@ export default {
       }
     },
 
+    // スライダーの値を更新した時に呼ばれる
     updateInitScore(value) {
-      // スライダーの値を更新
       let tmp_score = parseFloat(value, 10);
       tmp_score = Math.floor(tmp_score * 10) / 10;
       if (!isNaN(tmp_score)) {
@@ -434,8 +492,8 @@ export default {
       this.initScore_formatted = this.initScore.toFixed(1);
     },
 
+    // 調査スコアの値を更新した時に呼ばれる
     updateSearchScore(value) {
-      // スライダーの値を更新
       let tmp_score = parseFloat(value, 10);
       tmp_score = Math.floor(tmp_score * 10) / 10;
       if (!isNaN(tmp_score)) {
@@ -450,8 +508,8 @@ export default {
       this.searchScore_formatted = this.searchScore.toFixed(1);
     },
 
+    // 棒グラフの間隔を更新した時に呼ばれる
     updateBoldSpace(value) {
-      // 棒グラフの間隔を更新
       let tmp_space = parseFloat(value, 10);
       tmp_space = Math.floor(tmp_space * 10) / 10;
       if (!isNaN(tmp_space)) {
@@ -472,13 +530,15 @@ export default {
       this.bold_space_formatted = this.bold_space.toFixed(1);
     },
 
+    // ロード中のメッセージを更新
     updateLoadingMsg(is_failed) {
+      // 成功時と失敗時のメッセージを定義
       const msg_success = ["オイラなら余裕だぜ！", "えっへん！", "ふぅ...やっと終わったぜ...", "オイラわかったぞ！"]
       const msg_fail = ["わ、わからないぞ...", "うーん...わからないぜ！", "ん？どういうことだ？"]
-      if (is_failed) {  // 失敗時
+      if (is_failed) {
         const random = Math.floor(Math.random() * msg_fail.length);
         this.loading_msg = msg_fail[random];
-      } else {  // 成功時
+      } else {
         const random = Math.floor(Math.random() * msg_success.length);
         this.loading_msg = msg_success[random];
       }
@@ -509,19 +569,19 @@ body {
   height: fit-content;
 
   display: flex;
-  flex-direction: column; /* 上下方向に要素を並べる */
-  align-items: center; /* 子要素を水平方向に中央寄せ */
+  flex-direction: column;
+  align-items: center;
 }
 
-/* オーバーレイ */
+/* ロード画面のスタイル */
 .overlay {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(255, 255, 255, 0.7); /* 半透明白背景 */
-  backdrop-filter: blur(5px); /* ブラー効果 */
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(5px);
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -536,12 +596,11 @@ body {
   color: #555;
 }
 
-/* ロード状態の表示切り替え */
 .overlay.active {
   visibility: visible;
 }
 
-/* infoボタン */
+/* infoボタンのスタイル */
 .info-icon {
   padding: 0px;
   margin: 0px;
@@ -702,7 +761,7 @@ body {
   background: #4B5368;
 }
 
-/* 基本的な情報ボックス */
+/* 基本的なボックス */
 .info-section {
   width: fit-content;
   height: fit-content;
@@ -733,8 +792,6 @@ body {
   transition: background-color 0.3s ease;
 }
 
-/* def-selecterのアニメーション */
-
 .def-selecter:hover {
   background-color: #424858;
 }
@@ -744,7 +801,6 @@ body {
   border: 1px solid #d3bb8f;
 }
 
-/* セレクトボックスの矢印 */
 .def-selecter::-ms-expand {
   display: none;
 }
@@ -764,7 +820,6 @@ body {
   cursor: pointer;
 }
 
-/* スライダーのつまみ */
 .range-slider input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none;
   width: min(calc(16vw / 5), 22px);

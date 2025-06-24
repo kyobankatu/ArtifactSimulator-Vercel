@@ -180,8 +180,8 @@ export default {
   transform: translateY(-50%);
   width: min(calc(9vw / 5), 16px);
   height: min(calc(9vw / 5), 16px);
-  opacity: 0; /* ラジオボタンを非表示に */
-  pointer-events: none; /* ユーザーがクリックできないように */
+  opacity: 0;
+  pointer-events: none;
 }
 
 .option-num-area p {
@@ -205,7 +205,7 @@ export default {
   border: 2px solid #fff;
   border-radius: 50%;
   background-color: transparent;
-  transition: all 0.3s ease; /* アニメーション */
+  transition: all 0.3s ease;
 }
 
 .option-num-area label::after {
@@ -218,8 +218,8 @@ export default {
   height: calc(min(calc(9vw / 5), 16px) * 0.8);
   border-radius: 50%;
   background-color: #fff;
-  opacity: 0; /* 初期状態では非表示 */
-  transition: all 0.3s ease; /* アニメーション */
+  opacity: 0;
+  transition: all 0.3s ease;
 }
 
 .option-num-area input[type="radio"]:checked + label::after {
