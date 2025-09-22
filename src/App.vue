@@ -39,6 +39,9 @@
           :is_em="is_em"
           :count="count"
           :level="level"
+          :activeMode="activeMode"
+          :activeOption="activeOption"
+          :activeValueFormatted="activeValueFormatted"
           @update:option="option = $event"
           @update:position="position = $event"
           @update:main_op="main_op = $event"
@@ -49,6 +52,9 @@
           @update:is_em="is_em = $event"
           @update:count="count = $event"
           @update:level="level = $event"
+          @update:activeMode="activeMode = $event"
+          @update:activeOption="activeOption = $event"
+          @updateActiveValue="updateActiveValue"
         />
 
         <div class="input-area-right">
@@ -120,6 +126,9 @@ export default {
       show_info_box:       false,               // infoボックスの表示フラグ
       show_close_button:   false,               // infoボックスの閉じるボタンの表示フラグ
 
+      // --- モード関連 ---
+      activeMode:          "old",              // 表示中のモード ('old' or 'new')
+
       // --- ロード・スキャン関連 ---
       loading:             false,               // ロード状態フラグ
       scanning:            false,               // スキャン中のフラグ
@@ -184,6 +193,11 @@ export default {
           { value: "heal", text: "治療効果" },
         ],
       },                                  // 部位ごとのメインオプション
+
+      // --- アクティブオプション関連 ---
+      activeOption:           "else",          // 表示中のアクティブオプション
+      activeValue:            0.0,             // アクティブオプションの値
+      activeValueFormatted:   "0.0",           // 小数点第１位までのアクティブオプションの値
 
       // --- サブオプションの有効フラグ ---
       is_crit_rate:        false,         // 会心率のフラグ
@@ -307,6 +321,7 @@ export default {
       const formData = new FormData();
       formData.append('image', this.selectedFile);
       formData.append('score_type', this.score_type);
+      formData.append('is_new', this.activeMode == "new");
 
       try {
         // api.js内の関数を呼び出して画像をスキャン
@@ -324,6 +339,12 @@ export default {
         this.main_op = data.main_op;                            // メインステータス
         this.score_type = data.score_type;                      // スコア計算方法
         this.level = data.level;                                // レベル
+        // 新しいモードの場合、アクティブオプションとその値を更新
+        if (this.activeMode == "new" && this.option == 3) {
+          this.activeOption = data.active_op;                       // アクティブオプション
+          this.activeValue = data.active_op_value;                  // アクティブオプションの値
+          this.activeValueFormatted = this.activeValue.toFixed(1);  // 小数点第１位までのアクティブオプションの値
+        }
 
         // チェックボックスやスライダーの値を更新
         const atk_box = document.getElementById('is-atk');
@@ -332,6 +353,7 @@ export default {
         const crit_rate_box = document.getElementById('is-crit-rate');
         const crit_dmg_box = document.getElementById('is-crit-dmg');
         const init_slider = document.getElementById('init-slider');
+        const active_op_slider = document.getElementById('active-op-slider');
         const option_3 = document.getElementById('option-3');
         const option_4 = document.getElementById('option-4');
 
@@ -344,6 +366,9 @@ export default {
 
         // スライダーの値を設定
         init_slider.value = this.initScore;
+        if (this.activeMode == "new") {
+          active_op_slider.value = this.activeValue;
+        }
 
         // ラジオボタンの値を設定
         if (this.option == 3){
@@ -431,8 +456,11 @@ export default {
           count: this.count,                          // 強化回数
           start_count: Math.floor(this.level / 4),    // 開始時の強化回数
           score_type: this.score_type,                // スコア計算方法
-          elixir: this.elixir,                        // エリクサー使用フラグ
-          elixir_option: this.elixir_option,          // エリクサーのオプション
+          elixir: this.elixir,                        // エリクシル使用フラグ
+          elixir_option: this.elixir_option,          // エリクシルのオプション
+          is_new: (this.activeMode == "new"),         // 新しいモードかどうか
+          active_op: this.activeOption,               // アクティブオプション
+          active_op_value: this.activeValue,          // アクティブオプションの
           bold: this.bold,                            // 棒グラフ表示フラグ
           bold_space: this.bold_space         ,       // 棒グラフの間隔
         };
@@ -476,7 +504,23 @@ export default {
       }
     },
 
-    // スライダーの値を更新した時に呼ばれる
+    // アクティブオプションの値を更新した時に呼ばれる
+    updateActiveValue(value) {
+      let tmp_value = parseFloat(value, 10);
+      tmp_value = Math.floor(tmp_value * 10) / 10;
+      if (!isNaN(tmp_value)) {
+        this.activeValue = 0.0;
+      } if (tmp_value < 0) {
+        this.activeValue = 0.0;
+      } else if (7.8 < tmp_value) {
+        this.activeValue = 7.8
+      } else {
+        this.activeValue = tmp_value
+      }
+      this.activeValueFormatted = this.activeValue.toFixed(1);
+    },
+
+    // 現在スコアの値を更新した時に呼ばれる
     updateInitScore(value) {
       let tmp_score = parseFloat(value, 10);
       tmp_score = Math.floor(tmp_score * 10) / 10;
@@ -484,7 +528,7 @@ export default {
         this.initScore = 0;
       } if (tmp_score < 0) {
         this.initScore = 0;
-      } else if (tmp_score > 65) {
+      } else if (65 < tmp_score) {
         this.initScore = 65
       } else {
         this.initScore = tmp_score
@@ -500,7 +544,7 @@ export default {
         this.searchScore = 0;
       } if (tmp_score < 0) {
         this.searchScore = 0;
-      } else if (tmp_score > 65) {
+      } else if (65 < tmp_score) {
         this.searchScore = 65
       } else {
         this.searchScore = tmp_score
@@ -516,7 +560,7 @@ export default {
         this.bold_space = 0;
       } if (tmp_space < 0) {
         this.bold_space = 0;
-      } else if (tmp_space > 20) {
+      } else if (20 < tmp_space) {
         this.bold_space = 20
       } else {
         this.bold_space = tmp_space

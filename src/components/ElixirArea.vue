@@ -1,9 +1,9 @@
 <template>
   <div class="elixir-area">
-    <p class="elixir-title">エリクサー</p>
+    <p class="elixir-title">エリクシル</p>
     <div class="elixir-inner-area">
       <div class="elixir-switch-area info-section">
-        <p>エリクサー使用</p>
+        <p>エリクシル使用</p>
         <label class="def-switch">
           <input type="checkbox" v-model="elixirEnabled">
           <span class="def-switch-slider"></span>

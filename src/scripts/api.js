@@ -1,9 +1,12 @@
 import axios from 'axios';
 
+//const url = 'https://artifact-simulator-docker.onrender.com/';
+const url = 'http://localhost:13389/';
+
 export async function scanImageApi(formData) {
   // formData: FormDataオブジェクト
   const response = await axios.post(
-    'https://artifact-simulator-docker.onrender.com/scan-img',
+    url + 'scan-img',
     formData,
     {
       headers: { 'Content-Type': 'multipart/form-data' },
@@ -16,7 +19,7 @@ export async function scanImageApi(formData) {
 export async function getDistributionApi(requestBody) {
   // requestBody: オブジェクト
   const response = await axios.post(
-    'https://artifact-simulator-docker.onrender.com/get-dist',
+    url + 'get-dist',
     requestBody,
     { responseType: 'blob' }
   );
@@ -26,7 +29,7 @@ export async function getDistributionApi(requestBody) {
 export async function getDataApi(requestBody) {
   // requestBody: オブジェクト
   const response = await axios.post(
-    'https://artifact-simulator-docker.onrender.com/get-data',
+    url + 'get-data',
     requestBody,
     { responseType: 'json' }
   );
