@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-//const url = 'https://artifact-simulator-docker.onrender.com/';
-const url = 'http://localhost:13389/';
+const url = 'https://artifact-simulator-docker.onrender.com/';
+//const url = 'http://localhost:13389/';
 
 export async function scanImageApi(formData) {
   // formData: FormDataオブジェクト
