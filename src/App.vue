@@ -42,6 +42,7 @@
           :activeMode="activeMode"
           :activeOption="activeOption"
           :activeValueFormatted="activeValueFormatted"
+          :scoreType="score_type"
           @update:option="option = $event"
           @update:position="position = $event"
           @update:main_op="main_op = $event"
@@ -54,7 +55,7 @@
           @update:level="level = $event"
           @update:activeMode="activeMode = $event"
           @update:activeOption="activeOption = $event"
-          @updateActiveValue="updateActiveValue"
+          @updateActiveValue="activeValue = $event.score, activeValueFormatted = $event.formatted"
         />
 
         <div class="input-area-right">
@@ -63,8 +64,8 @@
             :initScore_formatted="initScore_formatted"
             :searchScore_formatted="searchScore_formatted"
             @update:score_type="score_type = $event"
-            @updateInitScore="updateInitScore"
-            @updateSearchScore="updateSearchScore"
+            @updateInitScore="initScore = $event.score, initScore_formatted = $event.formatted"
+            @updateSearchScore="searchScore = $event.score, searchScore_formatted = $event.formatted"
           />
 
           <ElixirArea
@@ -87,7 +88,7 @@
         :kurtosis="kurtosis"
         @update-output="updateOutput"
         @show-info="dataInfo(true)"
-        @updateBoldSpace="updateBoldSpace"
+        @updateBoldSpace="bold_space = $event.score, bold_space_formatted = $event.formatted, bold = $event.bold"
       />
     </div>
   </body>
@@ -504,76 +505,6 @@ export default {
       }
     },
 
-    // アクティブオプションの値を更新した時に呼ばれる
-    updateActiveValue(value) {
-      let tmp_value = parseFloat(value, 10);
-      tmp_value = Math.floor(tmp_value * 10) / 10;
-      if (!isNaN(tmp_value)) {
-        this.activeValue = 0.0;
-      } if (tmp_value < 0) {
-        this.activeValue = 0.0;
-      } else if (7.8 < tmp_value) {
-        this.activeValue = 7.8
-      } else {
-        this.activeValue = tmp_value
-      }
-      this.activeValueFormatted = this.activeValue.toFixed(1);
-    },
-
-    // 現在スコアの値を更新した時に呼ばれる
-    updateInitScore(value) {
-      let tmp_score = parseFloat(value, 10);
-      tmp_score = Math.floor(tmp_score * 10) / 10;
-      if (!isNaN(tmp_score)) {
-        this.initScore = 0;
-      } if (tmp_score < 0) {
-        this.initScore = 0;
-      } else if (65 < tmp_score) {
-        this.initScore = 65
-      } else {
-        this.initScore = tmp_score
-      }
-      this.initScore_formatted = this.initScore.toFixed(1);
-    },
-
-    // 調査スコアの値を更新した時に呼ばれる
-    updateSearchScore(value) {
-      let tmp_score = parseFloat(value, 10);
-      tmp_score = Math.floor(tmp_score * 10) / 10;
-      if (!isNaN(tmp_score)) {
-        this.searchScore = 0;
-      } if (tmp_score < 0) {
-        this.searchScore = 0;
-      } else if (65 < tmp_score) {
-        this.searchScore = 65
-      } else {
-        this.searchScore = tmp_score
-      }
-      this.searchScore_formatted = this.searchScore.toFixed(1);
-    },
-
-    // 棒グラフの間隔を更新した時に呼ばれる
-    updateBoldSpace(value) {
-      let tmp_space = parseFloat(value, 10);
-      tmp_space = Math.floor(tmp_space * 10) / 10;
-      if (!isNaN(tmp_space)) {
-        this.bold_space = 0;
-      } if (tmp_space < 0) {
-        this.bold_space = 0;
-      } else if (20 < tmp_space) {
-        this.bold_space = 20
-      } else {
-        this.bold_space = tmp_space
-      }
-
-      if (this.bold_space == 0) {
-        this.bold = false;
-      } else {
-        this.bold = true;
-      }
-      this.bold_space_formatted = this.bold_space.toFixed(1);
-    },
-
     // ロード中のメッセージを更新
     updateLoadingMsg(is_failed) {
       // 成功時と失敗時のメッセージを定義
@@ -817,6 +748,49 @@ body {
 
   background-color: #495366;
   box-shadow: 3px 5px 5px rgb(0 0 0 / 70%);
+}
+
+/* 基本的なタブ */
+.def-tabs {
+  width: fit-content;
+  max-width: 90%;
+
+  display: flex;
+  justify-content: center;
+  gap: min(calc(11vw / 5), 16px);
+
+  transform: translateY(1px);
+
+  z-index: 2;
+}
+
+.def-tab {
+  padding: min(calc(6vw / 5), 10px) min(calc(12vw / 5), 18px);
+
+  background: #424857;
+  color: #d3bb8f;
+  border-radius: 8px 8px 0 0;
+  border: 1px solid transparent;
+  font-size: min(calc(12vw / 5), 16px);
+
+  cursor: pointer;
+
+  position: relative;
+
+  transform: translateY(-2px);
+
+  transition: background 0.12s, color 0.12s, transform 0.08s;
+}
+
+.def-tab:hover {
+  background: #4b5968;
+}
+
+.def-tab.active {
+  border: 1px solid #d3bb8f;
+  border-bottom-color: transparent;
+
+  transform: translateY(0px);
 }
 
 /* 基本的なセレクトボックス */

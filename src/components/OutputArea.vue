@@ -10,7 +10,7 @@
     <div class="output-inner-area">
       <div class="distribution-area">
         <div class="distribution-result-area info-section">
-          <p class="distribution-area-title">確率分布</p>
+          <p class="distribution-area-title">ヒストグラム</p>
           <!-- 画像表示 -->
           <div class="distribution-result-inner-area" v-if="distributionImg">
             <img class="distribution-img" :src="distributionImg" alt="Distribution Image" />
@@ -26,7 +26,7 @@
               max="20"
               step="0.5"
               :value="bold_space_formatted"
-              @input="$emit('updateBoldSpace', $event.target.value)"
+              @input="updateBoldSpace($event.target.value)"
             />
             <input
               v-if="bold_space_formatted !== '0.0'"
@@ -36,7 +36,7 @@
               max="20"
               step="0.5"
               :value="bold_space_formatted"
-              @blur="$emit('updateBoldSpace', $event.target.value)"
+              @blur="updateBoldSpace($event.target.value)"
             />
             <p v-if="bold_space_formatted === '0.0'" class="bold-space-label">
               通常表示
@@ -88,7 +88,30 @@ export default {
     kurtosis: [Number, String],
     bold_space_formatted: [Number, String]
   },
-  emits: ["update-output", "show-info", "updateBoldSpace"]
+  emits: [
+    "update-output", "show-info", "updateBoldSpace"
+  ],
+  methods: {
+    // 棒グラフの間隔を更新した時に呼ばれる
+    updateBoldSpace(value) {
+      let boldSpace = parseFloat(value, 10);
+      boldSpace = Math.floor(boldSpace * 10) / 10;
+      if (isNaN(boldSpace)) {
+        boldSpace = 0;
+      } else if (boldSpace < 0) {
+        boldSpace = 0;
+      } else if (20 < boldSpace) {
+        boldSpace = 20
+      }
+      
+      let bold = true;
+      if (boldSpace == 0) {
+        bold = false;
+      }
+      const boldSpaceFormatted = boldSpace.toFixed(1);
+      this.$emit('updateBoldSpace', {score: boldSpace, formatted: boldSpaceFormatted, bold: bold});
+    }
+  }
 }
 </script>
 

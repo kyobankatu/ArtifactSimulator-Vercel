@@ -21,6 +21,10 @@
         </p>
         <p class="center-text">切り取った画像の例</p>
         <img class="artifact-sample-img" src="@/assets/artifact-sample.webp" alt="Info"/>
+        <p>聖遺物インポートの際には、
+          <span class="emphasis-red">オプション選択欄で「ver5.8 以前」または「Luna Ⅰ 以降」かを選択した上で</span>
+          インポートを行ってください。
+        </p>
         <p>
           また、
           <span class="emphasis-red">スキャンを行う前に、スコア計算方法を確認</span>
@@ -44,9 +48,13 @@
       <div class="info-inner-box">
         <p>聖遺物の情報を基に、予想スコアの分布を計算します。</p>
         <p>画面右側にある<span class="emphasis-blue">「更新」ボタン</span>を押すことで、予想スコアの分布および各種統計量を出力します。</p>
-        <p class="center-text">確率分布の例</p>
-        <img class="distribution-sample-img" src="@/assets/distribution-sample.webp" alt="Info"/>
-        <p>縦軸は確率（％表記ではない）を、横軸は最終スコアを表しています。</p>
+        <p class="center-text">ヒストグラムの例１</p>
+        <img class="distribution-sample-img" src="@/assets/dist-sample-1.png" alt="Info"/>
+        <p>ヒストグラムでまとめる区間は０．５間隔で指定することが可能です。</p>
+        <p>また、区間の指定を0にすることで以下の様に、区間でまとめない分布も出力出来ます。</p>
+        <p class="center-text">ヒストグラムの例２</p>
+        <img class="distribution-sample-img" src="@/assets/dist-sample-2.png" alt="Info"/>
+        <p>縦軸は確率（％表記）を、横軸は最終スコアを表しています。</p>
         <p>※ 計算の過程で、極度に出現確率が少ない例については削除されているので、確率の総和は必ずしも１にはなりません。</p>
         <p><span class="emphasis-blue">「データ表」</span>では各種統計量を表形式で出力します。</p>
         <p>
@@ -66,7 +74,7 @@
             <span class="emphasis-yellow">分散</span>
             <p>
               分散が大きい場合には、分布が広範囲に散らばっていると言えます。<br>
-              特に、分散が<span class="emphasis-red">４５より大きい</span>場合には最終スコアの予想がかなり散らばっていると言え、１段階強化した後に改めて出力を行うことでより正確な最終スコアの予想を行えます。
+              特に、分散が<span class="emphasis-red">４０より大きい</span>場合には最終スコアの予想がかなり散らばっていると言え、１段階強化した後に改めて出力を行うことでより正確な最終スコアの予想を行えます。
             </p>
           </li>
           <li>
@@ -152,7 +160,6 @@ export default {
   margin: 0px 0px min(calc(9vw / 5), 16px);
   width: 100%;
 
-  text-align: left;
   font-size: min(calc(9vw / 5), 16px);
   color: #fff;
 }

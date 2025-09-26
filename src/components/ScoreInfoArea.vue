@@ -21,7 +21,7 @@
               max="65"
               step="0.1"
               :value="initScore_formatted"
-              @input="$emit('updateInitScore', $event.target.value)"
+              @input="updateInitScore($event.target.value)"
             />
             <input
               class="init-score"
@@ -30,7 +30,7 @@
               max="65"
               step="0.1"
               :value="initScore_formatted"
-              @blur="$emit('updateInitScore', $event.target.value)"
+              @blur="updateInitScore($event.target.value)"
             />
           </div>
         </div>
@@ -43,7 +43,7 @@
               max="65"
               step="0.1"
               :value="searchScore_formatted"
-              @input="$emit('updateSearchScore', $event.target.value)"
+              @input="updateSearchScore($event.target.value)"
             />
             <input
               class="search-score"
@@ -52,7 +52,7 @@
               max="65"
               step="0.1"
               :value="searchScore_formatted"
-              @blur="$emit('updateSearchScore', $event.target.value)"
+              @blur="updateSearchScore($event.target.value)"
             />
           </div>
         </div>
@@ -73,7 +73,38 @@ export default {
     "update:score_type",
     "updateInitScore",
     "updateSearchScore"
-  ]
+  ],
+  methods: {
+    // 現在スコアの値を更新した時に呼ばれる
+    updateInitScore(value) {
+      let initScore = parseFloat(value, 10);
+      initScore = Math.floor(initScore * 10) / 10;
+      if (isNaN(initScore)) {
+        initScore = 0;
+      } else if (initScore < 0) {
+        initScore = 0;
+      } else if (65 < initScore) {
+        initScore = 65
+      }
+      const formattedScore = initScore.toFixed(1);
+      this.$emit('updateInitScore', {score: initScore, formatted: formattedScore});
+    },
+
+    // 調査スコアの値を更新した時に呼ばれる
+    updateSearchScore(value) {
+      let searchScore = parseFloat(value, 10);
+      searchScore = Math.floor(searchScore * 10) / 10;
+      if (isNaN(searchScore)) {
+        searchScore = 0;
+      } else if (searchScore < 0) {
+        searchScore = 0;
+      } else if (65 < searchScore) {
+        searchScore = 65
+      }
+      const formattedScore = searchScore.toFixed(1);
+      this.$emit('updateSearchScore', {score: searchScore, formatted: formattedScore});
+    }
+  }
 }
 </script>
 

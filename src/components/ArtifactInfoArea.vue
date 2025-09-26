@@ -1,14 +1,14 @@
 <template>
   <div class="artifact-info-area">
     <p class="artifact-info-title">オプション選択</p>
-    <div class="artifact-info-title-tabs">
+    <div class="def-tabs">
       <button
-        :class="['tab', { active: activeMode == 'old' }]"
+        :class="['def-tab', { active: activeMode == 'old' }]"
         @click="switchMode('old')">
         ver5.8 以前
       </button>
       <button
-        :class="['tab', { active: activeMode == 'new' }]"
+        :class="['def-tab', { active: activeMode == 'new' }]"
         @click="switchMode('new')">
         Luna Ⅰ 以降
       </button>
@@ -167,7 +167,7 @@
         </div>
       </div>
       <div class="active-option-area info-section">
-        <p>アクティブ化待ちオプション</p>
+        <p>アクティブ化待ちオプション(スコア)</p>
         <div class="active-option-inner-area">
           <select class="def-selecter" v-model="selected">
             <option
@@ -186,7 +186,7 @@
               max="7.8"
               step="0.1"
               :value="activeValueFormatted"
-              @input="$emit('updateActiveValue', $event.target.value)"
+              @input="updateActiveValue($event.target.value)"
             />
             <input
               class="active-op-value"
@@ -195,7 +195,7 @@
               max="7.8"
               step="0.1"
               :value="activeValueFormatted"
-              @blur="$emit('updateActiveValue', $event.target.value)"
+              @blur="updateActiveValue($event.target.value)"
             />
           </div>
         </div>
@@ -221,12 +221,13 @@ export default {
     count: Number,
     level: Number,
     activeValueFormatted: String,
-    activeOption: String
+    activeOption: String,
+    scoreType: String
   },
   data() {
     return {
       activeMode: "old",
-      selected: "else"
+      selected: "else",
     };
   },
   mounted() {
@@ -242,16 +243,17 @@ export default {
       if (!this.is_crit_dmg) {
         options.push({ value: "crit-dmg", text: "会心ダメージ" });
       }
-      if (!this.is_atk) {
+      if (!this.is_atk && this.scoreType == "atk") {
         options.push({ value: "atk%", text: "攻撃力" });
       }
-      if (!this.is_hp) {
+      if (!this.is_hp && this.scoreType == "hp") {
         options.push({ value: "hp%", text: "HP" });
       }
-      if (!this.is_em) {
+      if (!this.is_em && this.scoreType == "em") {
         options.push({ value: "em%", text: "元素熟知" });
       }
       options.push({ value: "else", text: "その他" });
+
       return options;
     },
     // レベルのグループ化 (0-3, 4-7, 8-11, 12-15, 16-19, 20)
@@ -260,26 +262,58 @@ export default {
     },
     // 強化回数の選択肢 (レベルに応じて最大値を変更)
     reinforceOptions() {
-      this.$emit('update:count', 1);
       const max = 6 - Math.floor(this.level / 4);
       return Array.from({ length: max - 1 }, (_, i) => i + 1);
     }
   },
+
   methods: {
     // タブ切り替え
     switchMode(mode) {
       this.activeMode = mode;
       this.$emit('update:activeMode', mode);
+    },
+
+    // 選択肢にselectedが含まれているか
+    ensureSelectedValid() {
+      const contains = this.setActiveOptions.some(o => o.value == this.selected);
+      if (!contains) {
+        this.selected = "else";
+        this.$emit('update:activeOption', 'else');
+      }
+    },
+
+    // アクティブオプションの値を更新した時に呼ばれる
+    updateActiveValue(value) {
+      let activeValue = parseFloat(value, 10);
+      activeValue = Math.floor(activeValue * 10) / 10;
+      if (isNaN(activeValue)) {
+        activeValue = 0.0;
+      } else if (activeValue < 0) {
+        activeValue = 0.0;
+      } else if (7.8 < activeValue) {
+        activeValue = 7.8
+      }
+
+      const activeValueFormatted = activeValue.toFixed(1);
+      this.$emit('updateActiveValue', {score: activeValue, formatted: activeValueFormatted});
     }
   },
+
   watch: {
     // activeOptionを更新したら同期
     activeOption(newVal) {
       this.selected = newVal;
+      this.ensureSelectedValid();
     },
     // selectedが変わったら親に通知
     selected(newVal) {
       this.$emit('update:activeOption', newVal);
+    },
+    // scoreTypeが変わったらactiveOptionをリセット
+    scoreType() {
+      this.setActiveOptions;
+      this.ensureSelectedValid();
     }
   }
 }
@@ -324,49 +358,6 @@ export default {
   justify-content: flex-start;
 
   z-index: 1;
-}
-
-/* タブ */
-.artifact-info-title-tabs {
-  width: fit-content;
-  max-width: 90%;
-
-  display: flex;
-  justify-content: center;
-  gap: min(calc(11vw / 5), 16px);
-
-  transform: translateY(1px);
-
-  z-index: 2;
-}
-
-.tab {
-  padding: min(calc(6vw / 5), 10px) min(calc(12vw / 5), 18px);
-
-  background: #424857;
-  color: #d3bb8f;
-  border-radius: 8px 8px 0 0;
-  border: 1px solid transparent;
-  font-size: min(calc(12vw / 5), 16px);
-
-  cursor: pointer;
-
-  position: relative;
-
-  transform: translateY(-2px);
-
-  transition: background 0.12s, color 0.12s, transform 0.08s;
-}
-
-.tab:hover {
-  background: #4b5968;
-}
-
-.tab.active {
-  border: 1px solid #d3bb8f;
-  border-bottom-color: transparent;
-
-  transform: translateY(0px);
 }
 
 .artifact-info-title {
