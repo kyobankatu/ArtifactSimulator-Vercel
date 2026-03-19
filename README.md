@@ -1,24 +1,43 @@
-# artifact-simulator-vercel
+# 原神 聖遺物強化シミュレーター
 
-## Project setup
-```
+原神の聖遺物強化結果の確率分布を計算・可視化するWebアプリです。
+スクリーンショットから聖遺物情報を自動読み取りし、強化後のスコア分布をヒストグラムや統計量で確認できます。
+
+## 機能
+
+- **画像スキャン**: 聖遺物のスクリーンショットをアップロードすると、部位・メインオプション・サブオプション・レベルを自動認識
+- **バージョン対応**: ver5.8以前 / Luna Ⅰ以降（4つ目のサブオプションが強化前から表示される新システム）の両方に対応
+- **スコア計算**: 攻撃力換算・HP換算・元素熟知換算の3方式を選択可能
+- **エリクサー対応**: エリクサーアイテムの使用有無・オプションを設定可能
+- **確率分布の出力**:
+  - ヒストグラム（区間幅を調整可能）
+  - パーセンタイル表（0 / 25 / 50 / 75 / 100%）
+  - 平均・分散・歪度・尖度
+
+## 使い方
+
+1. **画像スキャン（任意）**: 聖遺物のスクリーンショットを選択して「スキャン」を押す
+2. **オプション入力**:
+   - `オプション選択` エリアでバージョンタブを選び、サブオプション数・部位・メインオプション・サブオプション・強化回数・レベルを設定
+   - `スコア情報` エリアでスコア計算方式・初期スコア・調査スコアを設定
+   - 必要に応じてエリクサーを設定
+3. `更新` ボタンを押すと確率分布グラフと統計データが表示される
+
+## 開発環境のセットアップ
+
+```bash
 npm install
+npm run serve   # http://localhost:8080 で起動（ホットリロードあり）
+npm run build   # dist/ に本番ビルドを出力
+npm run lint    # ESLint チェック＆自動修正
 ```
 
-### Compiles and hot-reloads for development
-```
-npm run serve
-```
+バックエンドAPI（`https://artifact-simulator-docker.onrender.com/`）が別途稼働している必要があります。
+ローカルで動かす場合は `src/scripts/api.js` のURLを `http://localhost:13389/` に変更してください。
 
-### Compiles and minifies for production
-```
-npm run build
-```
+## 技術スタック
 
-### Lints and fixes files
-```
-npm run lint
-```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+- **フロントエンド**: Vue 3 (Options API) + Vue CLI 5
+- **HTTP クライアント**: Axios
+- **デプロイ**: Vercel
+- **バックエンド**: Docker コンテナ (Render にデプロイ)
